@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroControl Rural</title>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b4332">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><rect width='256' height='256' fill='none'/><path d='M208,80v88a16,16,0,0,1-16,16H152L128,216,104,184H64a16,16,0,0,1-16-16V80A16,16,0,0,1,64,64H192A16,16,0,0,1,208,80Z' fill='%231b4332'/></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons - CSS Font approach (always works) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-logo">
+                <i class="ph ph-tractor"></i>
+                <h1>AgroControl</h1>
+                <p>Gestão Rural Simplificada</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-email">E-mail</label>
+                    <input type="email" id="login-email" placeholder="seu@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="login-submit-btn">Entrar</button>
+            </form>
+            <div class="login-footer">
+                <p id="auth-toggle-container">Não tem uma conta? <a href="#" id="toggle-auth-mode"
+                        style="color: var(--primary); font-weight: 600; text-decoration: none;">Cadastre-se</a></p>
+                <p id="demo-mode-container" style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">Ou
+                    use o <a href="#" id="login-demo-btn"
+                        style="color: var(--secondary); text-decoration: underline;">Modo de Demonstração (Offline)</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Structure -->
+    <div id="app-screen" class="screen">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="ph ph-tractor logo-icon"></i>
+                <h2>AgroControl</h2>
+                <button id="close-sidebar" class="mobile-only icon-btn"><i class="ph ph-x"></i></button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard">
+                    <i class="ph ph-squares-four"></i> Visão Geral
+                </button>
+                <div class="nav-category">Financeiro</div>
+                <button class="nav-item" data-view="despesas">
+                    <i class="ph ph-trend-down"></i> Despesas
+                </button>
+                <button class="nav-item" data-view="receitas">
+                    <i class="ph ph-trend-up"></i> Receitas
+                </button>
+                <button class="nav-item" data-view="contas" style="position: relative;">
+                    <i class="ph ph-calendar-check"></i> Contas e Alertas
+                    <span id="overdue-badge-count" class="badge-danger-count" style="display: none;">0</span>
+                </button>
+                <div class="nav-category">Pecuária</div>
+                <button class="nav-item" data-view="gado">
+                    <i class="ph ph-cow"></i> Rebanho
+                </button>
+                <button class="nav-item" data-view="bezerros">
+                    <i class="ph ph-baby"></i> Bezerros
+                </button>
+                <div class="nav-category">Gestão</div>
+                <button class="nav-item" data-view="relatorios">
+                    <i class="ph ph-chart-bar"></i> Relatórios
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="nav-item danger">
+                    <i class="ph ph-sign-out"></i> Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <button id="open-sidebar" class="mobile-only icon-btn"><i class="ph ph-list"></i></button>
+                <h2 id="topbar-title">Visão Geral</h2>
+                <div class="user-profile">
+                    <span id="connection-status-badge" class="badge-offline">
+                        <i class="ph ph-circle"></i> Offline
+                    </span>
+                    <div class="avatar">
+                        <i class="ph ph-user"></i>
+                    </div>
+                    <span class="user-name" id="user-display-name">Fazenda São José</span>
+                </div>
+            </header>
+
+            <!-- Bulk Action Bar -->
+            <div id="bulk-action-bar" class="bulk-action-bar">
+                <div class="bulk-info">
+                    <span id="bulk-count">0</span> selecionados
+                </div>
+                <div class="bulk-actions" id="bulk-actions-container">
+                    <!-- Botões injetados via JS dependendo da tela -->
+                </div>
+                <button class="icon-btn close-bulk" id="close-bulk-bar"><i class="ph ph-x"></i></button>
+            </div>
+
+            <!-- Views Container -->
+            <div class="views-container">
+
+                <!-- Dashboard View -->
+                <section id="view-dashboard" class="view active">
+                    <div class="cards-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon revenue"><i class="ph ph-trend-up"></i></div>
+                            <div class="stat-details">
+                                <p>Receitas (Mês)</p>
+                                <h3 id="dash-receitas">R$ 0,00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon expense"><i class="ph ph-trend-down"></i></div>
+                            <div class="stat-details">
+                                <p>Despesas (Mês)</p>
+                                <h3 id="dash-despesas">R$ 0,00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon profit"><i class="ph ph-wallet"></i></div>
+                            <div class="stat-details">
+                                <p>Lucro Líquido</p>
+                                <h3 id="dash-lucro">R$ 0,00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon cattle"><i class="ph ph-cow"></i></div>
+                            <div class="stat-details">
+                                <p>Total de Gado</p>
+                                <h3 id="dash-gado">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Receitas vs Despesas</h3>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="financeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Despesas por Categoria</h3>
+                            </div>
+                            <div class="chart-wrapper doughnut-wrapper">
+                                <canvas id="expenseChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Despesas View -->
+                <section id="view-despesas" class="view">
+                    <div class="view-header">
+                        <div class="search-bar">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" id="search-despesa" placeholder="Buscar despesa...">
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-despesa')">
+                            <i class="ph ph-plus"></i> Nova Despesa
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Valor</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-despesas-body">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="empty-despesas" style="display: none;">
+                            <i class="ph ph-receipt"></i>
+                            <p>Nenhuma despesa registrada.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Receitas View -->
+                <section id="view-receitas" class="view">
+                    <div class="view-header">
+                        <div class="search-bar">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" id="search-receita" placeholder="Buscar receita...">
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-receita')">
+                            <i class="ph ph-plus"></i> Nova Receita
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição / Tipo</th>
+                                    <th>Qtd. Animais</th>
+                                    <th>Valor Total</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-receitas-body">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="empty-receitas" style="display: none;">
+                            <i class="ph ph-money"></i>
+                            <p>Nenhuma receita registrada.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gado View -->
+                <section id="view-gado" class="view">
+                    <div class="view-header">
+                        <div class="search-bar">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" id="search-gado" placeholder="Buscar por ID ou Lote...">
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-gado')">
+                            <i class="ph ph-plus"></i> Novo Animal
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"><input type="checkbox" id="select-all-gado" class="table-checkbox"></th>
+                                    <th>ID / Brinco</th>
+                                    <th>Sexo</th>
+                                    <th>Nascimento</th>
+                                    <th>Peso (kg)</th>
+                                    <th>Lote</th>
+                                    <th>Situação</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-gado-body">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="empty-gado" style="display: none;">
+                            <i class="ph ph-cow"></i>
+                            <p>Nenhum animal cadastrado no rebanho.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bezerros View -->
+                <section id="view-bezerros" class="view">
+                    <div class="view-header">
+                        <div class="search-bar">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" id="search-bezerro" placeholder="Buscar bezerro ou mãe...">
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-bezerro')">
+                            <i class="ph ph-plus"></i> Registrar Nascimento
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"><input type="checkbox" id="select-all-bezerros" class="table-checkbox"></th>
+                                    <th>Data Nascimento</th>
+                                    <th>ID da Mãe</th>
+                                    <th>Sexo</th>
+                                    <th>Peso Nasc. (kg)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-bezerros-body">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="empty-bezerros" style="display: none;">
+                            <i class="ph ph-baby"></i>
+                            <p>Nenhum nascimento registrado.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Relatórios View -->
+                <section id="view-relatorios" class="view">
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <h3>Resumo Financeiro</h3>
+                            <p>Acompanhe suas receitas, despesas e lucro em detalhes.</p>
+                            <div style="display:flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-outline" onclick="generateReport('finance')">Ver na Tela</button>
+                                <button class="btn btn-outline" style="border-color: #107c41; color: #107c41;" onclick="exportFinanceExcel()"><i class="ph ph-file-xls"></i> Excel</button>
+                            </div>
+                        </div>
+                        <div class="report-card">
+                            <h3>Evolução do Rebanho</h3>
+                            <p>Veja o crescimento do seu rebanho, nascimentos e vendas.</p>
+                            <div style="display:flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-outline" onclick="generateReport('cattle')">Ver na Tela</button>
+                                <button class="btn btn-outline" style="border-color: #b30b00; color: #b30b00;" onclick="exportCattlePDF()"><i class="ph ph-file-pdf"></i> PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="report-results" id="report-results" style="display:none; margin-top: 2rem;">
+                        <!-- Report output will go here -->
+                    </div>
+                </section>
+
+                <!-- Contas e Alertas View -->
+                <section id="view-contas" class="view">
+                    <!-- Alertas Resumo Cards -->
+                    <div class="cards-grid alert-cards-grid">
+                        <div class="stat-card alert-danger-card">
+                            <div class="stat-icon alert-danger-icon"><i class="ph ph-warning-octagon"></i></div>
+                            <div class="stat-details">
+                                <p>Atrasadas</p>
+                                <h3 id="contas-atrasadas">R$ 0,00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card alert-warning-card">
+                            <div class="stat-icon alert-warning-icon"><i class="ph ph-clock"></i></div>
+                            <div class="stat-details">
+                                <p>Vence Hoje</p>
+                                <h3 id="contas-vence-hoje">R$ 0,00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card alert-success-card">
+                            <div class="stat-icon alert-success-icon"><i class="ph ph-calendar-check"></i></div>
+                            <div class="stat-details">
+                                <p>A Vencer (30d)</p>
+                                <h3 id="contas-a-vencer">R$ 0,00</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="view-header flex-column-mobile">
+                        <div class="search-bar">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" id="search-conta" placeholder="Buscar por descrição...">
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn-filter active" data-filter="todas">Todas</button>
+                            <button class="btn-filter" data-filter="pagar">A Pagar</button>
+                            <button class="btn-filter" data-filter="receber">A Receber</button>
+                            <button class="btn-filter" data-filter="pendentes">Pendentes</button>
+                            <button class="btn-filter" data-filter="pagas">Pagas</button>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-conta')">
+                            <i class="ph ph-plus"></i> Nova Conta
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Vencimento</th>
+                                    <th>Tipo</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Valor</th>
+                                    <th>Recorrência</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-contas-body">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="empty-contas" style="display: none;">
+                            <i class="ph ph-calendar-blank"></i>
+                            <p>Nenhuma conta registrada para este filtro.</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Overlay -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+
+    <!-- Modal Nova Despesa -->
+    <div class="modal" id="modal-despesa">
+        <div class="modal-header">
+            <h3>Nova Despesa</h3>
+            <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-despesa">
+                <input type="hidden" id="despesa-id">
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <select id="despesa-categoria" required>
+                        <option value="">Selecione...</option>
+                        <option value="Funcionários">Funcionários</option>
+                        <option value="Manutenções Gerais">Manutenções Gerais</option>
+                        <option value="Manutenção de Máquinas">Manutenção de Máquinas</option>
+                        <option value="Manutenção de Pastagem">Manutenção de Pastagem</option>
+                        <option value="Alimentação Animal">Alimentação Animal</option>
+                        <option value="Saúde do Gado">Saúde do Gado</option>
+                        <option value="Combustível">Combustível</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Descrição</label>
+                    <input type="text" id="despesa-descricao" required placeholder="Ex: Conserto da cerca pasto 3">
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="despesa-valor" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="input-group">
+                        <label>Data</label>
+                        <input type="date" id="despesa-data" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Observações</label>
+                    <textarea id="despesa-observacoes" rows="2"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost close-modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Despesa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nova Receita -->
+    <div class="modal" id="modal-receita">
+        <div class="modal-header">
+            <h3>Nova Receita</h3>
+            <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-receita">
+                <input type="hidden" id="receita-id">
+                <div class="input-group">
+                    <label>Tipo de Receita</label>
+                    <select id="receita-tipo" required>
+                        <option value="">Selecione...</option>
+                        <option value="Nascimento (Ganho de Capital)">Nascimento (Ganho de Capital)</option>
+                        <option value="Venda de Bezerros">Venda de Bezerros</option>
+                        <option value="Venda de Garrotes">Venda de Garrotes</option>
+                        <option value="Venda de Bois (Gordo)">Venda de Bois (Gordo)</option>
+                        <option value="Venda de Vacas (Descarte)">Venda de Vacas (Descarte)</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Qtd. de Animais</label>
+                        <input type="number" id="receita-qtd" min="1" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Peso Total (kg) - opcional</label>
+                        <input type="number" id="receita-peso" step="0.1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Valor Total (R$)</label>
+                        <input type="number" id="receita-valor" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="input-group">
+                        <label>Data</label>
+                        <input type="date" id="receita-data" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Observações</label>
+                    <textarea id="receita-observacoes" rows="2"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost close-modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Receita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Novo Animal -->
+    <div class="modal" id="modal-gado" style="max-width: 540px;">
+        <div class="modal-header" style="padding-bottom: 1rem; border-bottom: none;">
+            <div>
+                <h3 style="margin-bottom: 0.5rem;">Cadastrar Animais</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Cadastre um único animal ou um lote inteiro de compra</p>
+            </div>
+            <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body" style="padding-top: 0.5rem;">
+            <!-- Modal Tabs Selection -->
+            <div class="modal-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; padding: 4px; background: #f1f5f9; border-radius: 8px;">
+                <button type="button" class="modal-tab active" id="tab-cadastro-individual" style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: white; color: var(--primary); transition: var(--transition);">Individual</button>
+                <button type="button" class="modal-tab" id="tab-cadastro-lote" style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-muted); transition: var(--transition);">Em Lote (Compra)</button>
+            </div>
+
+            <form id="form-gado">
+                <input type="hidden" id="gado-id">
+                <input type="hidden" id="gado-cadastro-modo" value="individual">
+
+                <!-- Individual Fields (Default Visible) -->
+                <div id="individual-fields" class="form-section active">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>ID / Brinco</label>
+                            <input type="text" id="gado-brinco" required placeholder="Ex: 045">
+                        </div>
+                        <div class="input-group">
+                            <label>Lote / Grupo</label>
+                            <input type="text" id="gado-lote" placeholder="Ex: Lote 1 - Recria">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Sexo</label>
+                            <select id="gado-sexo" required>
+                                <option value="Macho">Macho</option>
+                                <option value="Fêmea">Fêmea</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Data Nascimento</label>
+                            <input type="date" id="gado-nascimento">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Peso Atual (kg)</label>
+                            <input type="number" id="gado-peso" step="0.1" placeholder="Ex: 250">
+                        </div>
+                        <div class="input-group">
+                            <label>Situação</label>
+                            <select id="gado-situacao">
+                                <option value="Ativo no Pasto">Ativo no Pasto</option>
+                                <option value="Em Tratamento">Em Tratamento</option>
+                                <option value="Vendido">Vendido</option>
+                                <option value="Morto">Morto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch / Lote Fields (Hidden by Default) -->
+                <div id="lote-fields" class="form-section" style="display: none;">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Quantidade de Cabeças</label>
+                            <input type="number" id="gado-lote-qtd" min="1" max="1000" placeholder="Ex: 50">
+                        </div>
+                        <div class="input-group">
+                            <label>Lote / Grupo de Destino</label>
+                            <input type="text" id="gado-lote-nome" placeholder="Ex: Lote 1 - Recria">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Sexo dos Animais</label>
+                            <select id="gado-lote-sexo">
+                                <option value="Fêmea">Somente Fêmeas</option>
+                                <option value="Macho">Somente Machos</option>
+                                <option value="Misto">Misto (Macho e Fêmea)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Idade / Faixa Etária (em meses)</label>
+                            <input type="number" id="gado-lote-idade-meses" min="0" placeholder="Ex: 12">
+                        </div>
+                    </div>
+                    
+                    <!-- Misto gender distribution subfields -->
+                    <div class="form-row" id="gado-lote-misto-dist" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Fêmeas</label>
+                            <input type="number" id="gado-lote-qtd-femeas" min="0" placeholder="Ex: 30" style="padding: 0.5rem 0.75rem;">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Machos</label>
+                            <input type="number" id="gado-lote-qtd-machos" min="0" placeholder="Ex: 20" style="padding: 0.5rem 0.75rem;">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Peso Médio por Cabeça (kg)</label>
+                            <input type="number" id="gado-lote-peso" step="0.1" placeholder="Ex: 180">
+                        </div>
+                        <div class="input-group">
+                            <label>Situação Inicial</label>
+                            <select id="gado-lote-situacao">
+                                <option value="Ativo no Pasto">Ativo no Pasto</option>
+                                <option value="Em Tratamento">Em Tratamento</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Automatic Financial integration -->
+                    <div class="confirm-purchase-section" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                        <div class="input-checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;">
+                            <input type="checkbox" id="gado-lote-financeiro" style="width: auto; cursor: pointer; transform: scale(1.15);">
+                            <label for="gado-lote-financeiro" style="font-weight: 600; cursor: pointer; font-size: 0.95rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-hand-coins" style="color: var(--primary); font-size: 1.25rem;"></i> Registrar compra no Financeiro (Despesa)
+                            </label>
+                        </div>
+                        
+                        <div class="form-row finance-details" id="gado-lote-finance-details" style="display: none; gap: 1rem; padding: 1rem; background: rgba(64, 145, 108, 0.04); border-radius: 8px; border: 1px dashed rgba(64, 145, 108, 0.3);">
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.85rem; font-weight: 500;">Valor Unitário (R$)</label>
+                                <input type="number" id="gado-lote-valor-unitario" step="0.01" min="0.01" placeholder="0.00" style="padding: 0.5rem 0.75rem;">
+                            </div>
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.85rem; font-weight: 500;">Valor Total Calculado (R$)</label>
+                                <input type="number" id="gado-lote-valor-total" step="0.01" placeholder="Calculado..." readonly style="padding: 0.5rem 0.75rem; background-color: #e9ecef; font-weight: 600; color: var(--text-main); outline: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                    <button type="button" class="btn btn-ghost close-modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btn-salvar-gado">Salvar Animal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nascimento Bezerro -->
+    <div class="modal" id="modal-bezerro">
+        <div class="modal-header">
+            <h3>Registrar Nascimento</h3>
+            <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-bezerro">
+                <input type="hidden" id="bezerro-id">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Quantidade</label>
+                        <input type="number" id="bezerro-qtd" value="1" min="1" required>
+                    </div>
+                    <div class="input-group">
+                        <label>ID da Mãe (opcional)</label>
+                        <input type="text" id="bezerro-mae" list="lista-femeas" placeholder="Ex: LOTE-1">
+                        <datalist id="lista-femeas"></datalist>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="bezerro-data" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Sexo</label>
+                        <select id="bezerro-sexo" required>
+                            <option value="Macho">Macho</option>
+                            <option value="Fêmea">Fêmea</option>
+                            <option value="Misto">Misto (Macho e Fêmea)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Misto gender distribution subfields for calves -->
+                <div class="form-row" id="bezerro-misto-dist" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem; gap: 1rem;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Fêmeas</label>
+                        <input type="number" id="bezerro-qtd-femeas" min="0" placeholder="Ex: 3" style="padding: 0.5rem 0.75rem;">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Machos</label>
+                        <input type="number" id="bezerro-qtd-machos" min="0" placeholder="Ex: 2" style="padding: 0.5rem 0.75rem;">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Peso ao Nascer (kg)</label>
+                    <input type="number" id="bezerro-peso" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>Observações</label>
+                    <textarea id="bezerro-observacoes" rows="2"></textarea>
+                </div>
+                
+                <!-- Automatic Financial integration for Births -->
+                <div class="confirm-purchase-section" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                    <div class="input-checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;">
+                        <input type="checkbox" id="bezerro-financeiro" style="width: auto; cursor: pointer; transform: scale(1.15);">
+                        <label for="bezerro-financeiro" style="font-weight: 600; cursor: pointer; font-size: 0.95rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="ph ph-hand-coins" style="color: var(--success); font-size: 1.25rem;"></i> Lançar como Receita (Ganho de Capital)
+                        </label>
+                    </div>
+                    
+                    <div class="form-row finance-details" id="bezerro-finance-details" style="display: none; gap: 1rem; padding: 1rem; background: rgba(40, 167, 69, 0.04); border-radius: 8px; border: 1px dashed rgba(40, 167, 69, 0.3);">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.85rem; font-weight: 500;">Valor do Bezerro (R$)</label>
+                            <input type="number" id="bezerro-valor-unitario" step="0.01" min="0.01" placeholder="0.00" style="padding: 0.5rem 0.75rem;">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.85rem; font-weight: 500;">Receita Total (R$)</label>
+                            <input type="number" id="bezerro-valor-total" step="0.01" placeholder="Calculado..." readonly style="padding: 0.5rem 0.75rem; background-color: #e9ecef; font-weight: 600; color: var(--text-main); outline: none;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost close-modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrar Nascimento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Desmame em Lote -->
+    <div class="modal" id="modal-desmame">
+        <div class="modal-header">
+            <h3>Desmame de Bezerros</h3>
+            <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-desmame">
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
+                    Os <strong id="desmame-count">0</strong> bezerros selecionados serão convertidos em gado adulto na seção de Rebanho, deixando a área de recria.
+                </p>
+                <div class="input-group">
+                    <label>Lote de Destino</label>
+                    <input type="text" id="desmame-lote" placeholder="Ex: Lote Recria 1" required>
+                </div>
+                <div class="input-group">
+                    <label>Peso Médio Pós-Desmame (kg)</label>
+                    <input type="number" id="desmame-peso" step="0.1" placeholder="Ex: 180" required>
+                </div>
+                <div class="modal-actions" style="margin-top: 2rem;">
+                    <button type="button" class="btn btn-ghost close-modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btn-confirmar-desmame">Confirmar Desmame</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nova Conta -->
+    <div class="modal" id="modal-conta">
+        <div class="modal-header">
+            <h3 id="modal-conta-title">Nova Conta</h3>
+            <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-conta">
+                <input type="hidden" id="conta-id">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Tipo de Conta</label>
+                        <select id="conta-tipo" required>
+                            <option value="Pagar">A Pagar (Despesa)</option>
+                            <option value="Receber">A Receber (Receita)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Categoria</label>
+                        <select id="conta-categoria" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Descrição</label>
+                    <input type="text" id="conta-descricao" required placeholder="Ex: Conta de luz da sede ou venda de lote">
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="conta-valor" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="input-group">
+                        <label>Data de Vencimento</label>
+                        <input type="date" id="conta-vencimento" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Recorrência</label>
+                        <select id="conta-recorrencia" required>
+                            <option value="Nenhuma">Não se repete (Única)</option>
+                            <option value="Semanal">Semanal</option>
+                            <option value="Mensal">Mensal</option>
+                            <option value="Anual">Anual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Observações</label>
+                    <textarea id="conta-observacoes" rows="2" placeholder="Informações adicionais..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost close-modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Conta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div class="confirm-modal-overlay" id="confirm-modal-overlay">
+        <div class="confirm-modal-box" id="confirm-modal-box">
+            <div class="confirm-modal-icon-container" id="confirm-modal-icon-container">
+                <i class="ph ph-warning-circle" id="confirm-modal-icon"></i>
+            </div>
+            <h3 class="confirm-modal-title" id="confirm-modal-title">Confirmar Ação</h3>
+            <p class="confirm-modal-message" id="confirm-modal-message">Tem certeza que deseja prosseguir com esta ação?</p>
+            <div class="confirm-modal-actions">
+                <button type="button" class="confirm-btn confirm-btn-cancel" id="confirm-modal-cancel-btn">Cancelar</button>
+                <button type="button" class="confirm-btn confirm-btn-confirm" id="confirm-modal-confirm-btn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader Overlay -->
+    <div id="loader-overlay" class="loader-overlay">
+        <div class="spinner"></div>
+        <div class="loader-text" id="loader-text">Carregando...</div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="ph ph-info toast-icon" id="toast-icon"></i>
+        <span class="toast-message" id="toast-message">Mensagem de status</span>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF & Excel Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/db.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
