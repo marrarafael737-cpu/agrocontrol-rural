@@ -419,6 +419,31 @@
 
             </div>
         </main>
+
+        <!-- Mobile Floating Action Button (FAB) -->
+        <div class="fab-container" id="mobile-fab-container">
+            <button class="fab-btn" id="fab-main-btn" title="Ações Rápidas">
+                <i class="ph ph-plus"></i>
+            </button>
+            <div class="fab-options" id="fab-options-menu">
+                <button class="fab-option-btn" onclick="openModal('modal-despesa')" title="Registrar Despesa">
+                    <span class="fab-label">Despesa</span>
+                    <i class="ph ph-trend-down" style="background-color: rgba(220, 53, 69, 0.1); color: var(--danger);"></i>
+                </button>
+                <button class="fab-option-btn" onclick="openModal('modal-receita')" title="Registrar Receita">
+                    <span class="fab-label">Receita</span>
+                    <i class="ph ph-trend-up" style="background-color: rgba(40, 167, 69, 0.1); color: var(--success);"></i>
+                </button>
+                <button class="fab-option-btn" onclick="openModal('modal-gado')" title="Cadastrar Animal">
+                    <span class="fab-label">Animal</span>
+                    <i class="ph ph-cow" style="background-color: rgba(156, 102, 68, 0.1); color: var(--secondary);"></i>
+                </button>
+                <button class="fab-option-btn" onclick="openModal('modal-bezerro')" title="Registrar Nascimento">
+                    <span class="fab-label">Nascimento</span>
+                    <i class="ph ph-baby" style="background-color: rgba(0, 123, 255, 0.1); color: #007bff;"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modals -->
@@ -856,31 +881,6 @@
                 <button type="button" class="confirm-btn confirm-btn-cancel" id="confirm-modal-cancel-btn">Cancelar</button>
                 <button type="button" class="confirm-btn confirm-btn-confirm" id="confirm-modal-confirm-btn">Confirmar</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Mobile Floating Action Button (FAB) -->
-    <div class="fab-container" id="mobile-fab-container">
-        <button class="fab-btn" id="fab-main-btn" title="Ações Rápidas">
-            <i class="ph ph-plus"></i>
-        </button>
-        <div class="fab-options" id="fab-options-menu">
-            <button class="fab-option-btn" onclick="openModal('modal-despesa')" title="Registrar Despesa">
-                <span class="fab-label">Despesa</span>
-                <i class="ph ph-trend-down" style="background-color: rgba(220, 53, 69, 0.1); color: var(--danger);"></i>
-            </button>
-            <button class="fab-option-btn" onclick="openModal('modal-receita')" title="Registrar Receita">
-                <span class="fab-label">Receita</span>
-                <i class="ph ph-trend-up" style="background-color: rgba(40, 167, 69, 0.1); color: var(--success);"></i>
-            </button>
-            <button class="fab-option-btn" onclick="openModal('modal-gado')" title="Cadastrar Animal">
-                <span class="fab-label">Animal</span>
-                <i class="ph ph-cow" style="background-color: rgba(156, 102, 68, 0.1); color: var(--secondary);"></i>
-            </button>
-            <button class="fab-option-btn" onclick="openModal('modal-bezerro')" title="Registrar Nascimento">
-                <span class="fab-label">Nascimento</span>
-                <i class="ph ph-baby" style="background-color: rgba(0, 123, 255, 0.1); color: #007bff;"></i>
-            </button>
         </div>
     </div>
 
