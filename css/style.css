@@ -205,37 +205,178 @@ i[class*="ph-"] {
 #login-screen {
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-lighter) 100%);
+    position: relative;
+    overflow: hidden;
+    background: #061510; /* Deepest organic forest green */
+}
+
+/* Ambient Glowing Spheres with modern float animations */
+#login-screen::before {
+    content: '';
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(64, 145, 108, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+    top: -50px;
+    left: -50px;
+    filter: blur(40px);
+    pointer-events: none;
+    animation: floatGlow1 8s infinite alternate ease-in-out;
+}
+
+#login-screen::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(156, 102, 68, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+    bottom: -80px;
+    right: -80px;
+    filter: blur(50px);
+    pointer-events: none;
+    animation: floatGlow2 10s infinite alternate ease-in-out;
+}
+
+@keyframes floatGlow1 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 30px) scale(1.15); }
+}
+
+@keyframes floatGlow2 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-50px, -40px) scale(1.2); }
 }
 
 .login-container {
-    background: var(--surface-color);
-    padding: 2.5rem;
-    border-radius: 16px;
-    box-shadow: var(--shadow-lg);
+    background: rgba(13, 30, 23, 0.65); /* Elegant translucent forest-dark slate */
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem 2.5rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     width: 100%;
     max-width: 400px;
     text-align: center;
+    position: relative;
+    z-index: 2; /* Keep above glowing orbs */
+    color: #ffffff;
 }
 
 .login-logo {
-    margin-bottom: 2rem;
+    margin-bottom: 2.2rem;
 }
 
 .login-logo i {
-    font-size: 3rem;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
+    font-size: 3.5rem;
+    color: var(--secondary-light); /* Earthy gold/terracota */
+    margin-bottom: 0.75rem;
+    display: inline-block;
+    filter: drop-shadow(0 2px 8px rgba(176, 137, 104, 0.3));
+    transition: transform 0.4s ease;
+}
+
+.login-logo i:hover {
+    transform: rotate(15deg) scale(1.1);
 }
 
 .login-logo h1 {
-    font-size: 1.5rem;
-    color: var(--text-main);
+    font-size: 1.8rem;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
 }
 
 .login-logo p {
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.95rem;
+}
+
+/* Glassmorphism Inputs specifically inside Login Screen */
+.login-container .input-group label {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+.login-container .input-group input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    padding: 0.9rem 1.1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.login-container .input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.login-container .input-group input:focus {
+    border-color: var(--secondary-light);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 4px rgba(176, 137, 104, 0.25);
+    outline: none;
+}
+
+/* Premium Earthy Terracotta Login Button */
+.login-container .btn-primary {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
+    border: none;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 1rem;
+    font-size: 1.05rem;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(156, 102, 68, 0.35);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.login-container .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(156, 102, 68, 0.45);
+    filter: brightness(1.1);
+}
+
+.login-container .btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Auth Footer Links styling */
+.login-container .login-footer {
+    margin-top: 1.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 1.25rem;
+}
+
+.login-container .login-footer p {
+    margin-bottom: 0.5rem;
     font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.login-container .login-footer a {
+    color: var(--secondary-light) !important;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.login-container .login-footer a:hover {
+    color: #ffffff !important;
+    text-decoration: underline;
+}
+
+.login-container #demo-mode-container {
+    color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .input-group {
