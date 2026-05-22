@@ -1,6 +1,169 @@
 // AgroControl Rural - Main Application Logic
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Dark Mode Logic ---
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const sidebarThemeToggleBtn = document.getElementById('sidebar-theme-toggle-btn');
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('agrocontrol_theme', theme);
+        
+        const themeIconClass = theme === 'dark' ? 'ph ph-sun' : 'ph ph-moon';
+        
+        if (themeToggleBtn) {
+            const icon = themeToggleBtn.querySelector('i');
+            if (icon) icon.className = themeIconClass;
+        }
+        if (sidebarThemeToggleBtn) {
+            const icon = sidebarThemeToggleBtn.querySelector('i');
+            if (icon) icon.className = themeIconClass;
+        }
+        
+        // Force chart update with new theme grid/text colors if dashboard is active
+        if (typeof updateDashboard === 'function' && appScreen && appScreen.classList.contains('active')) {
+            updateDashboard();
+        }
+    }
+
+    function initTheme() {
+        const savedTheme = localStorage.getItem('agrocontrol_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        applyTheme(theme);
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+    }
+
+    if (sidebarThemeToggleBtn) {
+        sidebarThemeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+    }
+
+    // Theme will be initialized at the end of DOMContentLoaded
+
+    // --- Mobile Floating Action Button (FAB) ---
+    const mobileFabContainer = document.getElementById('mobile-fab-container');
+    const fabMainBtn = document.getElementById('fab-main-btn');
+
+    if (fabMainBtn && mobileFabContainer) {
+        fabMainBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileFabContainer.classList.toggle('active');
+        });
+    }
+
+    // Close FAB when clicking anywhere else on the document
+    document.addEventListener('click', (e) => {
+        if (mobileFabContainer && mobileFabContainer.classList.contains('active')) {
+            if (!mobileFabContainer.contains(e.target)) {
+                mobileFabContainer.classList.remove('active');
+            }
+        }
+    });
+
+    // --- Skeleton Screens Loader helper ---
+    window.triggerSkeleton = function(viewId) {
+        const viewElement = document.getElementById(`view-${viewId}`);
+        if (!viewElement) return;
+
+        // Check if there is already a skeleton active
+        if (viewElement.querySelector('.skeleton-overlay-container')) return;
+
+        let target = viewElement;
+        let skeletonHtml = '';
+
+        if (viewId === 'dashboard') {
+            skeletonHtml = `
+                <div class="skeleton-wrapper" style="padding: 1.5rem;">
+                    <div class="cards-grid" style="margin-bottom: 2rem;">
+                        <div class="skeleton-item skeleton-card"></div>
+                        <div class="skeleton-item skeleton-card"></div>
+                        <div class="skeleton-item skeleton-card"></div>
+                        <div class="skeleton-item skeleton-card"></div>
+                    </div>
+                    <div class="dashboard-charts">
+                        <div class="skeleton-item skeleton-chart" style="flex: 2; height: 320px;"></div>
+                        <div class="skeleton-item skeleton-chart" style="flex: 1; height: 320px;"></div>
+                    </div>
+                </div>
+            `;
+        } else if (viewId === 'relatorios') {
+            skeletonHtml = `
+                <div class="skeleton-wrapper" style="padding: 1.5rem;">
+                    <div class="reports-grid">
+                        <div class="skeleton-item skeleton-card" style="height: 150px;"></div>
+                        <div class="skeleton-item skeleton-card" style="height: 150px;"></div>
+                    </div>
+                </div>
+            `;
+        } else {
+            skeletonHtml = `
+                <div class="skeleton-wrapper" style="padding: 1rem;">
+                    <div class="skeleton-item skeleton-table-row" style="height: 40px; margin-bottom: 1.5rem;"></div>
+                    <div class="skeleton-item skeleton-table-row"></div>
+                    <div class="skeleton-item skeleton-table-row"></div>
+                    <div class="skeleton-item skeleton-table-row"></div>
+                    <div class="skeleton-item skeleton-table-row"></div>
+                    <div class="skeleton-item skeleton-table-row"></div>
+                </div>
+            `;
+            const tableContainer = viewElement.querySelector('.table-container');
+            if (tableContainer) {
+                target = tableContainer;
+            }
+        }
+
+        const overlay = document.createElement('div');
+        overlay.className = 'skeleton-overlay-container';
+        overlay.style.position = 'absolute';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'var(--bg-color)';
+        overlay.style.zIndex = '10';
+        overlay.style.transition = 'opacity 0.2s ease-in-out';
+        overlay.style.borderRadius = 'inherit';
+        overlay.innerHTML = skeletonHtml;
+
+        const originalPosition = target.style.position;
+        target.style.position = 'relative';
+
+        const originalChildren = Array.from(target.children);
+        originalChildren.forEach(child => {
+            if (child !== overlay) {
+                child.style.opacity = '0';
+                child.style.transition = 'opacity 0.2s ease-in-out';
+            }
+        });
+
+        target.appendChild(overlay);
+
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            originalChildren.forEach(child => {
+                if (child !== overlay) {
+                    child.style.opacity = '1';
+                }
+            });
+            
+            setTimeout(() => {
+                overlay.remove();
+                target.style.position = originalPosition;
+            }, 200);
+        }, 350);
+    };
+
     // --- Loader & Toast Utilities ---
     const loaderOverlay = document.getElementById('loader-overlay');
     const loaderText = document.getElementById('loader-text');
@@ -332,6 +495,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loginScreen.classList.remove('active');
         appScreen.classList.add('active');
         
+        // Trigger skeleton screen loader animation for the dashboard on initial entry
+        if (typeof window.triggerSkeleton === 'function') {
+            window.triggerSkeleton('dashboard');
+        }
+        
         // Timeout garante que o display: flex foi aplicado antes de renderizar os gráficos (evita bug de tamanho 0)
         setTimeout(() => {
             updateDashboard();
@@ -359,13 +527,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     navItems.forEach(item => {
         item.addEventListener('click', () => {
+            const viewId = item.getAttribute('data-view');
+            
+            // Trigger skeleton screen loader animation
+            if (typeof window.triggerSkeleton === 'function') {
+                window.triggerSkeleton(viewId);
+            }
+
             // Remove active from all
             navItems.forEach(nav => nav.classList.remove('active'));
             views.forEach(view => view.classList.remove('active'));
 
             // Add active to clicked
             item.classList.add('active');
-            const viewId = item.getAttribute('data-view');
             document.getElementById(`view-${viewId}`).classList.add('active');
             
             // Update title
@@ -1302,6 +1476,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ajustar window.openModal para configurar o form de Contas e Gado e Bezerros
     const originalOpenModal = window.openModal;
     window.openModal = function(modalId) {
+        // Fechar FAB mobile se estiver ativo ao abrir qualquer modal
+        const mobileFabContainer = document.getElementById('mobile-fab-container');
+        if (mobileFabContainer) {
+            mobileFabContainer.classList.remove('active');
+        }
+
         if (modalId === 'modal-conta') {
             document.getElementById('modal-conta-title').textContent = 'Nova Conta';
             document.getElementById('conta-id').value = '';
@@ -1639,6 +1819,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCharts(receitasMes, despesasMes, allDespesas, allReceitas, currentMonth, currentYear) {
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js SDK não carregado. Pulando renderização de gráficos.');
+            return;
+        }
         // === Gráfico Receitas vs Despesas — Últimos 6 meses (mobile-first) ===
         const mesesNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -1682,29 +1866,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (financeChartInstance) financeChartInstance.destroy();
 
         const isMobile = window.innerWidth <= 768;
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+        // Cores Dinâmicas de acordo com o Tema
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)';
+        const textLabelColor = isDark ? '#94A3B8' : '#6C757D';
+        const tooltipBg = isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+        const tooltipBorder = isDark ? 'rgba(255, 255, 255, 0.1)' : '#E9ECEF';
+        const tooltipTitle = isDark ? '#F8FAFC' : '#212529';
+        const tooltipBody = isDark ? '#CBD5E1' : '#495057';
+        const doughnutBorderColor = isDark ? '#0d1f17' : '#FFFFFF';
+
+        // Criar gradientes elegantes para as curvas do financeChart
+        const gradReceitas = ctxFinance.createLinearGradient(0, 0, 0, 300);
+        gradReceitas.addColorStop(0, 'rgba(40, 167, 69, 0.35)');
+        gradReceitas.addColorStop(1, 'rgba(40, 167, 69, 0.00)');
+
+        const gradDespesas = ctxFinance.createLinearGradient(0, 0, 0, 300);
+        gradDespesas.addColorStop(0, 'rgba(220, 53, 69, 0.35)');
+        gradDespesas.addColorStop(1, 'rgba(220, 53, 69, 0.00)');
 
         financeChartInstance = new Chart(ctxFinance, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: labels6,
                 datasets: [
                     {
                         label: 'Receitas',
                         data: dadosReceitas6,
-                        backgroundColor: 'rgba(40, 167, 69, 0.85)',
                         borderColor: '#28A745',
-                        borderWidth: 1,
-                        borderRadius: 5,
-                        borderSkipped: false
+                        backgroundColor: gradReceitas,
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#28A745',
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#28A745',
+                        pointHoverBorderColor: '#ffffff',
+                        pointHoverBorderWidth: 2
                     },
                     {
                         label: 'Despesas',
                         data: dadosDespesas6,
-                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
                         borderColor: '#DC3545',
-                        borderWidth: 1,
-                        borderRadius: 5,
-                        borderSkipped: false
+                        backgroundColor: gradDespesas,
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#DC3545',
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#DC3545',
+                        pointHoverBorderColor: '#ffffff',
+                        pointHoverBorderWidth: 2
                     }
                 ]
             },
@@ -1733,20 +1946,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             boxHeight: 12,
                             borderRadius: 3,
                             useBorderRadius: true,
-                            font: { size: isMobile ? 11 : 12, family: 'Inter' },
-                            color: '#6C757D'
+                            font: { size: isMobile ? 11 : 12, family: 'Outfit' },
+                            color: textLabelColor
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(255,255,255,0.95)',
-                        titleColor: '#212529',
-                        bodyColor: '#495057',
-                        borderColor: '#E9ECEF',
+                        backgroundColor: tooltipBg,
+                        titleColor: tooltipTitle,
+                        bodyColor: tooltipBody,
+                        borderColor: tooltipBorder,
                         borderWidth: 1,
                         padding: 10,
                         cornerRadius: 8,
-                        titleFont: { weight: '600', family: 'Inter' },
-                        bodyFont: { family: 'Inter' },
+                        titleFont: { weight: '600', family: 'Outfit' },
+                        bodyFont: { family: 'Outfit' },
                         callbacks: {
                             label: function(context) {
                                 const val = context.raw || 0;
@@ -1760,21 +1973,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         grid: { display: false },
                         border: { display: false },
                         ticks: {
-                            font: { size: isMobile ? 10 : 12, family: 'Inter' },
-                            color: '#6C757D'
+                            font: { size: isMobile ? 10 : 12, family: 'Outfit' },
+                            color: textLabelColor
                         }
                     },
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0,0,0,0.05)',
+                            color: gridColor,
                             drawBorder: false
                         },
                         border: { display: false, dash: [4, 4] },
                         ticks: {
                             maxTicksLimit: 5,
-                            font: { size: isMobile ? 9 : 11, family: 'Inter' },
-                            color: '#6C757D',
+                            font: { size: isMobile ? 9 : 11, family: 'Outfit' },
+                            color: textLabelColor,
                             callback: function(value) {
                                 return formatCompact(value);
                             }
@@ -1801,18 +2014,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const pieData = Object.values(categorias);
         const totalDespesas = pieData.reduce((a, b) => a + b, 0);
 
+        // Curated HSL colors for dark mode & light mode
+        const doughnutColors = isDark ? [
+            '#2D6A4F', '#40916C', '#52B788', '#74C69D',
+            '#95D5B2', '#1B4332', '#0D1F17', '#1E3A2F'
+        ] : [
+            '#1B4332', '#2D6A4F', '#40916C', '#52B788',
+            '#74C69D', '#95D5B2', '#B7E4C7', '#D8F3DC'
+        ];
+
         expenseChartInstance = new Chart(ctxExpense, {
             type: 'doughnut',
             data: {
                 labels: pieLabels.length ? pieLabels : ['Sem dados'],
                 datasets: [{
                     data: pieData.length ? pieData : [1],
-                    backgroundColor: pieData.length ? [
-                        '#1B4332', '#2D6A4F', '#40916C', '#52B788',
-                        '#74C69D', '#95D5B2', '#B7E4C7', '#D8F3DC'
-                    ] : ['#E9ECEF'],
+                    backgroundColor: pieData.length ? doughnutColors : (isDark ? ['#1e293b'] : ['#E9ECEF']),
                     borderWidth: 2,
-                    borderColor: '#FFFFFF',
+                    borderColor: doughnutBorderColor,
                     hoverOffset: 6
                 }]
             },
@@ -1833,11 +2052,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             boxHeight: 10,
                             borderRadius: 3,
                             useBorderRadius: true,
-                            font: { size: isMobile ? 10 : 11, family: 'Inter' },
-                            color: '#6C757D',
+                            font: { size: isMobile ? 10 : 11, family: 'Outfit' },
+                            color: textLabelColor,
                             generateLabels: function(chart) {
                                 const data = chart.data;
-                                if (!pieData.length) return [{ text: 'Sem dados', fillStyle: '#E9ECEF' }];
+                                if (!pieData.length) return [{ text: 'Sem dados', fillStyle: isDark ? '#1e293b' : '#E9ECEF' }];
                                 return data.labels.map((label, i) => {
                                     const val = pieData[i] || 0;
                                     const pct = totalDespesas > 0 ? ((val / totalDespesas) * 100).toFixed(0) : 0;
@@ -1845,7 +2064,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     return {
                                         text: shortLabel + ' (' + pct + '%)',
                                         fillStyle: data.datasets[0].backgroundColor[i],
-                                        strokeStyle: '#fff',
+                                        strokeStyle: doughnutBorderColor,
                                         lineWidth: 1,
                                         index: i
                                     };
@@ -1854,10 +2073,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(255,255,255,0.95)',
-                        titleColor: '#212529',
-                        bodyColor: '#495057',
-                        borderColor: '#E9ECEF',
+                        backgroundColor: tooltipBg,
+                        titleColor: tooltipTitle,
+                        bodyColor: tooltipBody,
+                        borderColor: tooltipBorder,
                         borderWidth: 1,
                         padding: 10,
                         cornerRadius: 8,
@@ -2238,4 +2457,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Erro ao exportar PDF. O script do jsPDF pode estar ausente.', 'error');
         }
     };
+
+    // Initialize Theme after all variables and listeners are configured
+    initTheme();
 });
