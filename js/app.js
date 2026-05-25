@@ -554,6 +554,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Refresh data if needed
             if (viewId === 'dashboard') updateDashboard();
             if (viewId === 'contas') renderContas();
+            if (viewId === 'mapa') {
+                if (typeof window.initMap === 'function') window.initMap();
+            }
         });
     });
 
@@ -2456,6 +2459,98 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro na exportação PDF:', err);
             showToast('Erro ao exportar PDF. O script do jsPDF pode estar ausente.', 'error');
         }
+    };
+
+    // --- Mapa de Pastos (Leaflet) ---
+    let farmMap = null;
+    
+    window.initMap = function() {
+        if (!document.getElementById('farm-map')) return;
+        
+        if (farmMap) {
+            setTimeout(() => {
+                farmMap.invalidateSize();
+            }, 300);
+            return;
+        }
+
+        const lat = -23.5505;
+        const lng = -46.6333;
+
+        farmMap = L.map('farm-map').setView([lat, lng], 14);
+
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri'
+        }).addTo(farmMap);
+
+        const piquetes = [
+            {
+                "type": "Feature",
+                "properties": {
+                    "name": "Piquete 1",
+                    "status": "Em Descanso",
+                    "color": "#28a745"
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [lng - 0.01, lat + 0.01],
+                        [lng + 0.005, lat + 0.01],
+                        [lng + 0.005, lat - 0.005],
+                        [lng - 0.01, lat - 0.005],
+                        [lng - 0.01, lat + 0.01]
+                    ]]
+                }
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "name": "Piquete 2",
+                    "status": "Ocupado (Lote A)",
+                    "color": "#dc3545"
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [lng + 0.006, lat + 0.01],
+                        [lng + 0.02, lat + 0.01],
+                        [lng + 0.02, lat - 0.005],
+                        [lng + 0.006, lat - 0.005],
+                        [lng + 0.006, lat + 0.01]
+                    ]]
+                }
+            }
+        ];
+
+        L.geoJSON(piquetes, {
+            style: function (feature) {
+                return {
+                    color: feature.properties.color,
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.4
+                };
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(`
+                    <div style="font-family: inherit; color: #333;">
+                        <h4 style="margin:0 0 5px 0;">${feature.properties.name}</h4>
+                        <p style="margin:0;">Status: <strong>${feature.properties.status}</strong></p>
+                    </div>
+                `);
+                
+                layer.on('mouseover', function () {
+                    this.setStyle({ fillOpacity: 0.7 });
+                });
+                layer.on('mouseout', function () {
+                    this.setStyle({ fillOpacity: 0.4 });
+                });
+            }
+        }).addTo(farmMap);
+
+        setTimeout(() => {
+            farmMap.invalidateSize();
+        }, 300);
     };
 
     // Initialize Theme after all variables and listeners are configured
