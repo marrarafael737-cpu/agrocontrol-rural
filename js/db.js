@@ -80,61 +80,86 @@ function formatDate(dateStr) {
     return `${day}/${month}/${year}`;
 }
 
+let queueMutex = Promise.resolve();
+let isProcessingQueue = false;
+
 const DB = {
     
     // === Fila de Sincronização (Background Sync) ===
-    queueSyncAction: async (table, action, payload) => {
-        let queue = [];
-        try {
-            queue = await localforage.getItem('agrocontrol_sync_queue') || [];
-        } catch(e) {}
-        queue.push({ table, action, payload, timestamp: Date.now() });
-        await localforage.setItem('agrocontrol_sync_queue', queue);
+    queueSyncAction: (table, action, payload) => {
+        queueMutex = queueMutex.then(async () => {
+            let queue = [];
+            try { queue = await localforage.getItem('agrocontrol_sync_queue') || []; } catch(e) {}
+            queue.push({ table, action, payload, timestamp: Date.now() });
+            await localforage.setItem('agrocontrol_sync_queue', queue);
+        });
+        return queueMutex;
     },
     
     processSyncQueue: async () => {
         if (!supabaseClient || !navigator.onLine) return;
-        let queue = [];
+        if (isProcessingQueue) return;
+        isProcessingQueue = true;
+        
         try {
-            queue = await localforage.getItem('agrocontrol_sync_queue') || [];
-        } catch(e) {}
-        if (queue.length === 0) return;
-        
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
-
-        console.log(`Processando fila de sincronização (${queue.length} itens)...`);
-        
-        const failedQueue = [];
-        let authExpired = false;
-        
-        for (const item of queue) {
-            try {
-                if (item.action === 'INSERT') {
-                    const payload = { ...item.payload, user_id: user.id };
-                    const { error } = await supabaseClient.from(item.table).insert([payload]);
-                    if (error) throw error;
-                } else if (item.action === 'UPDATE') {
-                    const { error } = await supabaseClient.from(item.table).update(item.payload).eq('id', item.payload.id);
-                    if (error) throw error;
-                } else if (item.action === 'DELETE') {
-                    const { error } = await supabaseClient.from(item.table).delete().eq('id', item.payload.id);
-                    if (error) throw error;
+            let queueToProcess = [];
+            await queueMutex.then(async () => {
+                try { queueToProcess = await localforage.getItem('agrocontrol_sync_queue') || []; } catch(e) {}
+                if (queueToProcess.length > 0) {
+                    await localforage.setItem('agrocontrol_sync_queue', []);
                 }
-            } catch (err) {
-                console.error(`Erro ao processar item da fila (${item.table} - ${item.action}):`, err);
-                failedQueue.push(item);
-                // Verifica erro de Autenticação/Sessão (Token expirado)
-                if (err.status === 401 || err.code === 'PGRST301' || (err.message && err.message.includes('JWT'))) {
-                    authExpired = true;
+            });
+            
+            if (queueToProcess.length === 0) return;
+            
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                await queueMutex.then(async () => {
+                    let currentQueue = await localforage.getItem('agrocontrol_sync_queue') || [];
+                    await localforage.setItem('agrocontrol_sync_queue', [...queueToProcess, ...currentQueue]);
+                });
+                return;
+            }
+
+            console.log(`Processando fila de sincronização (${queueToProcess.length} itens)...`);
+            
+            const failedQueue = [];
+            let authExpired = false;
+            
+            for (const item of queueToProcess) {
+                try {
+                    if (item.action === 'INSERT') {
+                        const payload = { ...item.payload, user_id: user.id };
+                        const { error } = await supabaseClient.from(item.table).insert([payload]);
+                        if (error) throw error;
+                    } else if (item.action === 'UPDATE') {
+                        const { error } = await supabaseClient.from(item.table).update(item.payload).eq('id', item.payload.id);
+                        if (error) throw error;
+                    } else if (item.action === 'DELETE') {
+                        const { error } = await supabaseClient.from(item.table).delete().eq('id', item.payload.id);
+                        if (error) throw error;
+                    }
+                } catch (err) {
+                    console.error(`Erro ao processar item da fila (${item.table} - ${item.action}):`, err);
+                    failedQueue.push(item);
+                    if (err.status === 401 || err.code === 'PGRST301' || (err.message && err.message.includes('JWT'))) {
+                        authExpired = true;
+                    }
                 }
             }
-        }
-        
-        await localforage.setItem('agrocontrol_sync_queue', failedQueue);
-        
-        if (authExpired) {
-            window.dispatchEvent(new CustomEvent('auth-expired', { detail: { count: failedQueue.length } }));
+            
+            if (failedQueue.length > 0) {
+                await queueMutex.then(async () => {
+                    let currentQueue = await localforage.getItem('agrocontrol_sync_queue') || [];
+                    await localforage.setItem('agrocontrol_sync_queue', [...failedQueue, ...currentQueue]);
+                });
+            }
+            
+            if (authExpired) {
+                window.dispatchEvent(new CustomEvent('auth-expired', { detail: { count: failedQueue.length } }));
+            }
+        } finally {
+            isProcessingQueue = false;
         }
     },
 
