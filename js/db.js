@@ -42,7 +42,7 @@ async function initDB() {
                 console.log("Migrando banco de dados do LocalStorage para IndexedDB...");
                 await localforage.setItem(DB_KEY, localCache);
                 localStorage.removeItem(DB_KEY);
-            } catch(e) {
+            } catch (e) {
                 localCache = { ...defaultData };
             }
         } else {
@@ -84,34 +84,34 @@ let queueMutex = Promise.resolve();
 let isProcessingQueue = false;
 
 const DB = {
-    
+
     // === Fila de Sincronização (Background Sync) ===
     queueSyncAction: (table, action, payload) => {
         queueMutex = queueMutex.then(async () => {
             let queue = [];
-            try { queue = await localforage.getItem('agrocontrol_sync_queue') || []; } catch(e) {}
+            try { queue = await localforage.getItem('agrocontrol_sync_queue') || []; } catch (e) { }
             queue.push({ table, action, payload, timestamp: Date.now() });
             await localforage.setItem('agrocontrol_sync_queue', queue);
         });
         return queueMutex;
     },
-    
+
     processSyncQueue: async () => {
         if (!supabaseClient || !navigator.onLine) return;
         if (isProcessingQueue) return;
         isProcessingQueue = true;
-        
+
         try {
             let queueToProcess = [];
             await queueMutex.then(async () => {
-                try { queueToProcess = await localforage.getItem('agrocontrol_sync_queue') || []; } catch(e) {}
+                try { queueToProcess = await localforage.getItem('agrocontrol_sync_queue') || []; } catch (e) { }
                 if (queueToProcess.length > 0) {
                     await localforage.setItem('agrocontrol_sync_queue', []);
                 }
             });
-            
+
             if (queueToProcess.length === 0) return;
-            
+
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) {
                 await queueMutex.then(async () => {
@@ -122,10 +122,10 @@ const DB = {
             }
 
             console.log(`Processando fila de sincronização (${queueToProcess.length} itens)...`);
-            
+
             const failedQueue = [];
             let authExpired = false;
-            
+
             for (const item of queueToProcess) {
                 try {
                     if (item.action === 'INSERT') {
@@ -147,14 +147,14 @@ const DB = {
                     }
                 }
             }
-            
+
             if (failedQueue.length > 0) {
                 await queueMutex.then(async () => {
                     let currentQueue = await localforage.getItem('agrocontrol_sync_queue') || [];
                     await localforage.setItem('agrocontrol_sync_queue', [...failedQueue, ...currentQueue]);
                 });
             }
-            
+
             if (authExpired) {
                 window.dispatchEvent(new CustomEvent('auth-expired', { detail: { count: failedQueue.length } }));
             }
@@ -180,7 +180,7 @@ const DB = {
     },
 
     // === Sincronização Supabase ===
-    
+
     // Verifica se há um usuário autenticado
     isAuthenticated: async () => {
         if (!supabaseClient) return false;
@@ -227,7 +227,7 @@ const DB = {
     // Sincroniza dados do Supabase para o cache local
     syncFromSupabase: async () => {
         if (!supabaseClient) return false;
-        
+
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) {
             console.log("Nenhum usuário logado. Utilizando dados locais de teste.");
@@ -274,7 +274,7 @@ const DB = {
     addDespesa: (despesa) => {
         despesa.id = generateId();
         despesa.valor = parseFloat(despesa.valor);
-        
+
         // Salva instantaneamente no cache local
         localCache.despesas.push(despesa);
         saveLocal();
@@ -311,7 +311,7 @@ const DB = {
         receita.valor = parseFloat(receita.valor);
         receita.qtd = parseInt(receita.qtd);
         receita.peso = receita.peso ? parseFloat(receita.peso) : 0;
-        
+
         localCache.receitas.push(receita);
         saveLocal();
 
@@ -346,7 +346,7 @@ const DB = {
     addGado: (animal) => {
         animal.id = generateId();
         animal.peso = animal.peso ? parseFloat(animal.peso) : 0;
-        
+
         localCache.gado.push(animal);
         saveLocal();
 
@@ -379,7 +379,7 @@ const DB = {
     addBezerro: (bezerro) => {
         bezerro.id = generateId();
         bezerro.peso = bezerro.peso ? parseFloat(bezerro.peso) : 0;
-        
+
         localCache.bezerros.push(bezerro);
         saveLocal();
 
@@ -413,7 +413,7 @@ const DB = {
         conta.id = generateId();
         conta.valor = parseFloat(conta.valor);
         conta.status = conta.status || 'Pendente';
-        
+
         localCache.contas.push(conta);
         saveLocal();
 
@@ -444,7 +444,7 @@ const DB = {
         const refStr = `[REF_CONTA:${id}]`;
         const despesasRelacionadas = localCache.despesas.filter(d => d.observacoes && d.observacoes.includes(refStr));
         despesasRelacionadas.forEach(d => DB.deleteDespesa(d.id));
-        
+
         const receitasRelacionadas = localCache.receitas.filter(r => r.observacoes && r.observacoes.includes(refStr));
         receitasRelacionadas.forEach(r => DB.deleteReceita(r.id));
     },
@@ -485,7 +485,7 @@ const DB = {
         if (conta.recorrencia && conta.recorrencia !== 'Nenhuma') {
             // Usa 12:00:00 para forçar o meio-dia e blindar contra bugs de Fuso Horário e Horário de Verão
             const proxVencimento = new Date(conta.vencimento + 'T12:00:00');
-            
+
             if (conta.recorrencia === 'Semanal') {
                 proxVencimento.setDate(proxVencimento.getDate() + 7);
             } else if (conta.recorrencia === 'Mensal') {

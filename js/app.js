@@ -2556,3 +2556,109 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Theme after all variables and listeners are configured
     initTheme();
 });
+
+// --- Funções Globais Independentes ---
+window.openInventarioView = function() {
+    try {
+        console.log("Abrindo inventário global...");
+        const todosAnimais = window.DB ? window.DB.getGado() : [];
+        const ativos = todosAnimais.filter(a => a.situacao !== 'Morto' && a.situacao !== 'Vendido');
+        
+        let m0_6 = 0, f0_6 = 0;
+        let m7_12 = 0, f7_12 = 0;
+        let m13_24 = 0, f13_24 = 0;
+        let m25_36 = 0, f25_36 = 0;
+        let m36_mais = 0, f36_mais = 0;
+
+        const hoje = new Date();
+
+        ativos.forEach(a => {
+            if (!a.nascimento) return;
+            let nasc;
+            if (a.nascimento.includes('/')) {
+                const parts = a.nascimento.split('/');
+                nasc = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
+            } else {
+                nasc = new Date(a.nascimento + 'T12:00:00');
+            }
+
+            if (isNaN(nasc.getTime())) return;
+
+            let meses = (hoje.getFullYear() - nasc.getFullYear()) * 12 + (hoje.getMonth() - nasc.getMonth());
+            if (hoje.getDate() < nasc.getDate()) meses--;
+            
+            if (meses < 0) meses = 0;
+
+            if (meses <= 6) {
+                if (a.sexo === 'Macho') m0_6++; else f0_6++;
+            } else if (meses <= 12) {
+                if (a.sexo === 'Macho') m7_12++; else f7_12++;
+            } else if (meses <= 24) {
+                if (a.sexo === 'Macho') m13_24++; else f13_24++;
+            } else if (meses <= 36) {
+                if (a.sexo === 'Macho') m25_36++; else f25_36++;
+            } else {
+                if (a.sexo === 'Macho') m36_mais++; else f36_mais++;
+            }
+        });
+
+        const tbody = document.getElementById('tbody-inventario-view');
+        if(tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td style="padding: 8px; font-weight: 500; text-align: left;">Até 6 meses (Nascimento)</td>
+                    <td style="padding: 4px;">${m0_6}</td>
+                    <td style="padding: 4px;">${f0_6}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; font-weight: 500; text-align: left;">7 a 12 meses (Desmama)</td>
+                    <td style="padding: 4px;">${m7_12}</td>
+                    <td style="padding: 4px;">${f7_12}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; font-weight: 500; text-align: left;">13 a 24 meses (Garrote/Novilha)</td>
+                    <td style="padding: 4px;">${m13_24}</td>
+                    <td style="padding: 4px;">${f13_24}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; font-weight: 500; text-align: left;">25 a 36 meses (Novilho(a))</td>
+                    <td style="padding: 4px;">${m25_36}</td>
+                    <td style="padding: 4px;">${f25_36}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; font-weight: 500; text-align: left;">Acima 36 meses (Boi/Vaca)</td>
+                    <td style="padding: 4px;">${m36_mais}</td>
+                    <td style="padding: 4px;">${f36_mais}</td>
+                </tr>
+            `;
+        }
+
+        const totalM = m0_6 + m7_12 + m13_24 + m25_36 + m36_mais;
+        const totalF = f0_6 + f7_12 + f13_24 + f25_36 + f36_mais;
+
+        const elTotalM = document.getElementById('view-total-m');
+        const elTotalF = document.getElementById('view-total-f');
+        const elTotalGeral = document.getElementById('view-total-geral');
+
+        if (elTotalM) elTotalM.textContent = totalM;
+        if (elTotalF) elTotalF.textContent = totalF;
+        if (elTotalGeral) elTotalGeral.textContent = totalM + totalF;
+
+        if (typeof window.openModal === 'function') {
+            window.openModal('modal-inventario-view');
+        } else {
+            document.getElementById('modal-overlay').classList.add('active');
+            document.getElementById('modal-inventario-view').classList.add('active');
+        }
+    } catch (e) {
+        console.error("Erro em openInventarioView:", e);
+        alert("Erro ao abrir inventário: " + e.message);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnInventario = document.getElementById('btn-inventario-view');
+    if (btnInventario) {
+        btnInventario.addEventListener('click', window.openInventarioView);
+    }
+});

@@ -277,9 +277,14 @@
                             <i class="ph ph-magnifying-glass"></i>
                             <input type="text" id="search-gado" placeholder="Buscar por ID ou Lote...">
                         </div>
-                        <button class="btn btn-primary" onclick="openModal('modal-gado')">
-                            <i class="ph ph-plus"></i> Novo Animal
-                        </button>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button id="btn-inventario-view" class="btn btn-secondary" onclick="openInventarioView()" style="background: var(--light); color: var(--text-main); border: 1px solid var(--border-color);">
+                                <i class="ph ph-table"></i> Inventário
+                            </button>
+                            <button class="btn btn-primary" onclick="openModal('modal-gado')">
+                                <i class="ph ph-plus"></i> Novo Animal
+                            </button>
+                        </div>
                     </div>
                     <div class="table-container">
                         <table class="data-table">
@@ -582,7 +587,7 @@
             <!-- Modal Tabs Selection -->
             <div class="modal-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; padding: 4px; background: #f1f5f9; border-radius: 8px;">
                 <button type="button" class="modal-tab active" id="tab-cadastro-individual" style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: white; color: var(--primary); transition: var(--transition);">Individual</button>
-                <button type="button" class="modal-tab" id="tab-cadastro-lote" style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-muted); transition: var(--transition);">Em Lote (Compra)</button>
+                <button type="button" class="modal-tab" id="tab-cadastro-lote" style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-muted); transition: var(--transition);">Em Lote</button>
             </div>
 
             <form id="form-gado">
@@ -635,8 +640,11 @@
                 <div id="lote-fields" class="form-section" style="display: none;">
                     <div class="form-row">
                         <div class="input-group">
-                            <label>Quantidade de Cabeças</label>
-                            <input type="number" id="gado-lote-qtd" min="1" max="1000" placeholder="Ex: 50">
+                            <label>Tipo de Entrada</label>
+                            <select id="gado-lote-tipo-entrada" required>
+                                <option value="estoque">Estoque Inicial (Animais já na fazenda)</option>
+                                <option value="compra">Compra de Lote</option>
+                            </select>
                         </div>
                         <div class="input-group">
                             <label>Lote / Grupo de Destino</label>
@@ -645,35 +653,8 @@
                     </div>
                     <div class="form-row">
                         <div class="input-group">
-                            <label>Sexo dos Animais</label>
-                            <select id="gado-lote-sexo">
-                                <option value="Fêmea">Somente Fêmeas</option>
-                                <option value="Macho">Somente Machos</option>
-                                <option value="Misto">Misto (Macho e Fêmea)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Idade / Faixa Etária (em meses)</label>
-                            <input type="number" id="gado-lote-idade-meses" min="0" placeholder="Ex: 12">
-                        </div>
-                    </div>
-                    
-                    <!-- Misto gender distribution subfields -->
-                    <div class="form-row" id="gado-lote-misto-dist" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
-                        <div class="input-group" style="margin-bottom: 0;">
-                            <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Fêmeas</label>
-                            <input type="number" id="gado-lote-qtd-femeas" min="0" placeholder="Ex: 30" style="padding: 0.5rem 0.75rem;">
-                        </div>
-                        <div class="input-group" style="margin-bottom: 0;">
-                            <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Machos</label>
-                            <input type="number" id="gado-lote-qtd-machos" min="0" placeholder="Ex: 20" style="padding: 0.5rem 0.75rem;">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label>Peso Médio por Cabeça (kg)</label>
-                            <input type="number" id="gado-lote-peso" step="0.1" placeholder="Ex: 180">
+                            <label>Prefixo do Brinco (opcional)</label>
+                            <input type="text" id="gado-lote-prefixo" placeholder="Ex: NELORE">
                         </div>
                         <div class="input-group">
                             <label>Situação Inicial</label>
@@ -684,8 +665,102 @@
                         </div>
                     </div>
 
+                    <!-- COMPRA FIELDS -->
+                    <div id="lote-compra-fields" style="display: none;">
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>Quantidade de Cabeças</label>
+                                <input type="number" id="gado-lote-qtd" min="1" max="1000" placeholder="Ex: 50">
+                            </div>
+                            <div class="input-group">
+                                <label>Sexo dos Animais</label>
+                                <select id="gado-lote-sexo">
+                                    <option value="Fêmea">Somente Fêmeas</option>
+                                    <option value="Macho">Somente Machos</option>
+                                    <option value="Misto">Misto (Macho e Fêmea)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Misto gender distribution subfields -->
+                        <div class="form-row" id="gado-lote-misto-dist" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Fêmeas</label>
+                                <input type="number" id="gado-lote-qtd-femeas" min="0" placeholder="Ex: 30" style="padding: 0.5rem 0.75rem;">
+                            </div>
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Machos</label>
+                                <input type="number" id="gado-lote-qtd-machos" min="0" placeholder="Ex: 20" style="padding: 0.5rem 0.75rem;">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>Idade / Faixa Etária (em meses)</label>
+                                <input type="number" id="gado-lote-idade-meses" min="0" placeholder="Ex: 12">
+                            </div>
+                            <div class="input-group">
+                                <label>Peso Médio por Cabeça (kg)</label>
+                                <input type="number" id="gado-lote-peso" step="0.1" placeholder="Ex: 180">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ESTOQUE INITIAL GRID -->
+                    <div id="lote-estoque-fields" style="display: block; margin-top: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.95rem;">Grade de Animais</h4>
+                        <div class="table-container" style="overflow-x: auto; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem;">
+                                <thead>
+                                    <tr style="background: var(--light); color: var(--text-main);">
+                                        <th style="padding: 8px; border-bottom: 2px solid var(--border-color);">Categoria / Idade</th>
+                                        <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #0056b3;">Machos</th>
+                                        <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #c2185b;">Fêmeas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">Até 6 meses (Nascimento)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-0-6" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-0-6" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">7 a 12 meses (Desmama)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-7-12" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-7-12" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">13 a 24 meses (Garrote/Novilha)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-13-24" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-13-24" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">25 a 36 meses (Novilho(a))</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-25-36" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-25-36" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">Acima 36 meses (Boi/Vaca)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-36-mais" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-36-mais" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="background: #e9ecef; font-weight: bold;">
+                                        <td style="padding: 8px; text-align: right;">Totais:</td>
+                                        <td style="padding: 8px; color: #0056b3;" id="grid-total-m">0</td>
+                                        <td style="padding: 8px; color: #c2185b;" id="grid-total-f">0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div style="text-align: right; margin-top: 8px; font-weight: 600; font-size: 1rem;">
+                            Total Geral: <span id="grid-total-geral" style="color: var(--primary);">0</span> cabeças
+                        </div>
+                    </div>
+
                     <!-- Automatic Financial integration -->
-                    <div class="confirm-purchase-section" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                    <div class="confirm-purchase-section" id="gado-lote-financeiro-container" style="display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
                         <div class="input-checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;">
                             <input type="checkbox" id="gado-lote-financeiro" style="width: auto; cursor: pointer; transform: scale(1.15);">
                             <label for="gado-lote-financeiro" style="font-weight: 600; cursor: pointer; font-size: 0.95rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
@@ -883,6 +958,42 @@
                     <button type="submit" class="btn btn-primary">Salvar Conta</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- View Inventory Modal -->
+    <div id="modal-inventario-view" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>Inventário Atual do Rebanho</h2>
+                <button class="close-modal"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-container" style="overflow-x: auto; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem;" id="table-inventario-view">
+                        <thead>
+                            <tr style="background: var(--light); color: var(--text-main);">
+                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); text-align: left;">Categoria / Idade</th>
+                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #0056b3;">Machos</th>
+                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #c2185b;">Fêmeas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-inventario-view">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #e9ecef; font-weight: bold;">
+                                <td style="padding: 8px; text-align: right;">Totais:</td>
+                                <td style="padding: 8px; color: #0056b3;" id="view-total-m">0</td>
+                                <td style="padding: 8px; color: #c2185b;" id="view-total-f">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div style="text-align: right; margin-top: 8px; font-weight: 600; font-size: 1rem;">
+                    Total Geral: <span id="view-total-geral" style="color: var(--primary);">0</span> cabeças
+                </div>
+            </div>
         </div>
     </div>
 
