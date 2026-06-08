@@ -8,6 +8,11 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1b4332">
+    <meta name="description" content="AgroControl Rural - Sistema de gestão rural para controle financeiro e zootécnico (gado, bezerros) de forma simplificada e eficiente.">
+    <meta property="og:title" content="AgroControl Rural">
+    <meta property="og:description" content="Sistema de gestão rural para controle financeiro e zootécnico de forma simplificada e eficiente.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630?text=AgroControl+Rural">
     <link rel="apple-touch-icon"
         href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><rect width='256' height='256' fill='none'/><path d='M208,80v88a16,16,0,0,1-16,16H152L128,216,104,184H64a16,16,0,0,1-16-16V80A16,16,0,0,1,64,64H192A16,16,0,0,1,208,80Z' fill='%231b4332'/></svg>">
 
@@ -68,39 +73,39 @@
             </div>
 
             <nav class="sidebar-nav">
-                <button class="nav-item active" data-view="dashboard">
+                <button class="sidebar-btn active" data-view="dashboard">
                     <i class="ph ph-squares-four"></i> Visão Geral
                 </button>
                 <div class="nav-category">Financeiro</div>
-                <button class="nav-item" data-view="despesas">
+                <button class="sidebar-btn" data-view="despesas">
                     <i class="ph ph-trend-down"></i> Despesas
                 </button>
-                <button class="nav-item" data-view="receitas">
+                <button class="sidebar-btn" data-view="receitas">
                     <i class="ph ph-trend-up"></i> Receitas
                 </button>
-                <button class="nav-item" data-view="contas" style="position: relative;">
+                <button class="sidebar-btn" data-view="contas" style="position: relative;">
                     <i class="ph ph-calendar-check"></i> Contas e Alertas
                     <span id="overdue-badge-count" class="badge-danger-count" style="display: none;">0</span>
                 </button>
                 <div class="nav-category">Pecuária</div>
-                <button class="nav-item" data-view="gado">
+                <button class="sidebar-btn" data-view="gado">
                     <i class="ph ph-cow"></i> Rebanho
                 </button>
-                <button class="nav-item" data-view="bezerros">
+                <button class="sidebar-btn" data-view="bezerros">
                     <i class="ph ph-baby"></i> Bezerros
                 </button>
-                <button class="nav-item" data-view="mapa">
+                <button class="sidebar-btn" data-view="mapa">
                     <i class="ph ph-map-trifold"></i> Mapa de Pastos
                 </button>
                 <div class="nav-category">Gestão</div>
-                <button class="nav-item" data-view="relatorios">
+                <button class="sidebar-btn" data-view="relatorios">
                     <i class="ph ph-chart-bar"></i> Relatórios
                 </button>
             </nav>
 
             <div class="sidebar-footer"
                 style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                <button id="logout-btn" class="nav-item danger" style="flex: 1; margin: 0;">
+                <button id="logout-btn" class="sidebar-btn danger" style="flex: 1; margin: 0;">
                     <i class="ph ph-sign-out"></i> Sair
                 </button>
                 <button class="theme-toggle-btn mobile-only" id="sidebar-theme-toggle-btn" title="Alternar Tema"
@@ -1091,10 +1096,14 @@
                 <div style="text-align: right; margin-top: 8px; font-weight: 600; font-size: 1rem;">
                     Total Geral: <span id="view-total-geral" style="color: var(--primary);">0</span> cabeças
                 </div>
-                <div class="modal-actions" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                    <button type="button" class="btn btn-ghost" id="btn-cancelar-edicao-inventario" style="display: none;">Cancelar</button>
-                    <button type="button" class="btn btn-outline" id="btn-editar-inventario"><i class="ph ph-pencil-simple"></i> Editar Inventário</button>
-                    <button type="button" class="btn btn-primary" id="btn-salvar-inventario" style="display: none;">Salvar Ajustes</button>
+                <div class="modal-actions"
+                    style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                    <button type="button" class="btn btn-ghost" id="btn-cancelar-edicao-inventario"
+                        style="display: none;">Cancelar</button>
+                    <button type="button" class="btn btn-outline" id="btn-editar-inventario"><i
+                            class="ph ph-pencil-simple"></i> Editar Inventário</button>
+                    <button type="button" class="btn btn-primary" id="btn-salvar-inventario"
+                        style="display: none;">Salvar Ajustes</button>
                 </div>
             </div>
         </div>

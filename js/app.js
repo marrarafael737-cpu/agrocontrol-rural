@@ -517,7 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Navigation ---
-    const navItems = document.querySelectorAll('.nav-item[data-view]');
+    const navItems = document.querySelectorAll('.sidebar-btn[data-view]');
     const views = document.querySelectorAll('.view');
     const topbarTitle = document.getElementById('topbar-title');
     const sidebar = document.getElementById('sidebar');
@@ -2623,8 +2623,17 @@ window.openInventarioView = function(mode = 'view') {
     try {
         console.log("Abrindo inventário global no modo:", mode);
         const todosAnimais = window.DB ? window.DB.getGado() : [];
-        const ativos = todosAnimais.filter(a => a.situacao !== 'Morto' && a.situacao !== 'Vendido');
+        let ativos = todosAnimais.filter(a => a.situacao !== 'Morto' && a.situacao !== 'Vendido');
         
+        // Incluir bezerros não desmamados na contagem do inventário geral
+        const bezerros = window.DB ? window.DB.getBezerros() : [];
+        const bezerrosComoGado = bezerros.map(b => ({
+            ...b,
+            nascimento: b.data,
+            situacao: 'Ativo no Pasto'
+        }));
+        ativos = ativos.concat(bezerrosComoGado);
+
         let m0_6 = 0, f0_6 = 0;
         let m7_12 = 0, f7_12 = 0;
         let m13_24 = 0, f13_24 = 0;

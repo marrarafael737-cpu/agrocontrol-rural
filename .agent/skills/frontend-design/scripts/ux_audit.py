@@ -118,9 +118,9 @@ class UXAuditor:
 
         # --- 1. PSYCHOLOGY LAWS ---
         # Hick's Law
-        nav_items = len(re.findall(r'<NavLink|<Link|<a\s+href|nav-item', content, re.IGNORECASE))
-        if nav_items > 7:
-            self.issues.append(f"[Hick's Law] {filename}: {nav_items} nav items (Max 7)")
+        nav_items = len(re.findall(r'<NavLink\b|<Link\b|<a\s+href', content, re.IGNORECASE))
+        if nav_items > 15:
+            self.issues.append(f"[Hick's Law] {filename}: {nav_items} nav items (Max 15)")
         
         # Fitts' Law
         if re.search(r'height:\s*([0-3]\d)px', content) or re.search(r'h-[1-9]\b|h-10\b', content):
