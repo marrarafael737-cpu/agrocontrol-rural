@@ -2558,9 +2558,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Funções Globais Independentes ---
-window.openInventarioView = function() {
+window.currentInventoryData = {};
+
+window.openInventarioView = function(mode = 'view') {
     try {
-        console.log("Abrindo inventário global...");
+        console.log("Abrindo inventário global no modo:", mode);
         const todosAnimais = window.DB ? window.DB.getGado() : [];
         const ativos = todosAnimais.filter(a => a.situacao !== 'Morto' && a.situacao !== 'Vendido');
         
@@ -2602,53 +2604,134 @@ window.openInventarioView = function() {
             }
         });
 
+        window.currentInventoryData = {
+            m0_6, f0_6, m7_12, f7_12, m13_24, f13_24, m25_36, f25_36, m36_mais, f36_mais
+        };
+
         const tbody = document.getElementById('tbody-inventario-view');
         if(tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td style="padding: 8px; font-weight: 500; text-align: left;">Até 6 meses (Nascimento)</td>
-                    <td style="padding: 4px;">${m0_6}</td>
-                    <td style="padding: 4px;">${f0_6}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; font-weight: 500; text-align: left;">7 a 12 meses (Desmama)</td>
-                    <td style="padding: 4px;">${m7_12}</td>
-                    <td style="padding: 4px;">${f7_12}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; font-weight: 500; text-align: left;">13 a 24 meses (Garrote/Novilha)</td>
-                    <td style="padding: 4px;">${m13_24}</td>
-                    <td style="padding: 4px;">${f13_24}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; font-weight: 500; text-align: left;">25 a 36 meses (Novilho(a))</td>
-                    <td style="padding: 4px;">${m25_36}</td>
-                    <td style="padding: 4px;">${f25_36}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; font-weight: 500; text-align: left;">Acima 36 meses (Boi/Vaca)</td>
-                    <td style="padding: 4px;">${m36_mais}</td>
-                    <td style="padding: 4px;">${f36_mais}</td>
-                </tr>
-            `;
+            if (mode === 'edit') {
+                tbody.innerHTML = `
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">Até 6 meses (Nascimento)</td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-m-0-6" min="0" value="${m0_6}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-f-0-6" min="0" value="${f0_6}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">7 a 12 meses (Desmama)</td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-m-7-12" min="0" value="${m7_12}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-f-7-12" min="0" value="${f7_12}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">13 a 24 meses (Garrote/Novilha)</td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-m-13-24" min="0" value="${m13_24}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-f-13-24" min="0" value="${f13_24}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">25 a 36 meses (Novilho(a))</td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-m-25-36" min="0" value="${m25_36}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-f-25-36" min="0" value="${f25_36}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">Acima 36 meses (Boi/Vaca)</td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-m-36-mais" min="0" value="${m36_mais}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                        <td style="padding: 4px;"><input type="number" class="grid-input inv-edit" id="inv-f-36-mais" min="0" value="${f36_mais}" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                    </tr>
+                `;
+
+                // Add event listeners to update totals live
+                document.querySelectorAll('.inv-edit').forEach(input => {
+                    input.addEventListener('input', () => {
+                        let tm = (parseInt(document.getElementById('inv-m-0-6').value)||0) +
+                                 (parseInt(document.getElementById('inv-m-7-12').value)||0) +
+                                 (parseInt(document.getElementById('inv-m-13-24').value)||0) +
+                                 (parseInt(document.getElementById('inv-m-25-36').value)||0) +
+                                 (parseInt(document.getElementById('inv-m-36-mais').value)||0);
+                        let tf = (parseInt(document.getElementById('inv-f-0-6').value)||0) +
+                                 (parseInt(document.getElementById('inv-f-7-12').value)||0) +
+                                 (parseInt(document.getElementById('inv-f-13-24').value)||0) +
+                                 (parseInt(document.getElementById('inv-f-25-36').value)||0) +
+                                 (parseInt(document.getElementById('inv-f-36-mais').value)||0);
+                        
+                        const elTotalM = document.getElementById('view-total-m');
+                        const elTotalF = document.getElementById('view-total-f');
+                        const elTotalGeral = document.getElementById('view-total-geral');
+                        
+                        if (elTotalM) elTotalM.textContent = tm;
+                        if (elTotalF) elTotalF.textContent = tf;
+                        if (elTotalGeral) elTotalGeral.textContent = tm + tf;
+                    });
+                });
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">Até 6 meses (Nascimento)</td>
+                        <td style="padding: 4px;">${m0_6}</td>
+                        <td style="padding: 4px;">${f0_6}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">7 a 12 meses (Desmama)</td>
+                        <td style="padding: 4px;">${m7_12}</td>
+                        <td style="padding: 4px;">${f7_12}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">13 a 24 meses (Garrote/Novilha)</td>
+                        <td style="padding: 4px;">${m13_24}</td>
+                        <td style="padding: 4px;">${f13_24}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">25 a 36 meses (Novilho(a))</td>
+                        <td style="padding: 4px;">${m25_36}</td>
+                        <td style="padding: 4px;">${f25_36}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; font-weight: 500; text-align: left;">Acima 36 meses (Boi/Vaca)</td>
+                        <td style="padding: 4px;">${m36_mais}</td>
+                        <td style="padding: 4px;">${f36_mais}</td>
+                    </tr>
+                `;
+            }
         }
 
-        const totalM = m0_6 + m7_12 + m13_24 + m25_36 + m36_mais;
-        const totalF = f0_6 + f7_12 + f13_24 + f25_36 + f36_mais;
+        if (mode !== 'edit') {
+            const totalM = m0_6 + m7_12 + m13_24 + m25_36 + m36_mais;
+            const totalF = f0_6 + f7_12 + f13_24 + f25_36 + f36_mais;
 
-        const elTotalM = document.getElementById('view-total-m');
-        const elTotalF = document.getElementById('view-total-f');
-        const elTotalGeral = document.getElementById('view-total-geral');
+            const elTotalM = document.getElementById('view-total-m');
+            const elTotalF = document.getElementById('view-total-f');
+            const elTotalGeral = document.getElementById('view-total-geral');
 
-        if (elTotalM) elTotalM.textContent = totalM;
-        if (elTotalF) elTotalF.textContent = totalF;
-        if (elTotalGeral) elTotalGeral.textContent = totalM + totalF;
+            if (elTotalM) elTotalM.textContent = totalM;
+            if (elTotalF) elTotalF.textContent = totalF;
+            if (elTotalGeral) elTotalGeral.textContent = totalM + totalF;
+        }
 
-        if (typeof window.openModal === 'function') {
-            window.openModal('modal-inventario-view');
-        } else {
-            document.getElementById('modal-overlay').classList.add('active');
-            document.getElementById('modal-inventario-view').classList.add('active');
+        // Handle buttons
+        const btnEditar = document.getElementById('btn-editar-inventario');
+        const btnCancelar = document.getElementById('btn-cancelar-edicao-inventario');
+        const btnSalvar = document.getElementById('btn-salvar-inventario');
+
+        if (btnEditar && btnCancelar && btnSalvar) {
+            if (mode === 'edit') {
+                btnEditar.style.display = 'none';
+                btnCancelar.style.display = 'inline-block';
+                btnSalvar.style.display = 'inline-block';
+            } else {
+                btnEditar.style.display = 'inline-block';
+                btnCancelar.style.display = 'none';
+                btnSalvar.style.display = 'none';
+            }
+        }
+
+        // Show modal if not already open
+        const modal = document.getElementById('modal-inventario-view');
+        if (modal && !modal.classList.contains('active')) {
+            if (typeof window.openModal === 'function') {
+                window.openModal('modal-inventario-view');
+            } else {
+                document.getElementById('modal-overlay').classList.add('active');
+                modal.classList.add('active');
+            }
         }
     } catch (e) {
         console.error("Erro em openInventarioView:", e);
@@ -2656,9 +2739,157 @@ window.openInventarioView = function() {
     }
 };
 
+window.saveInventarioAdjustments = async function() {
+    const btnSalvar = document.getElementById('btn-salvar-inventario');
+    if (btnSalvar) {
+        btnSalvar.disabled = true;
+        btnSalvar.textContent = 'Ajustando...';
+    }
+
+    try {
+        const getVal = id => parseInt(document.getElementById(id).value) || 0;
+        const newValues = {
+            m0_6: getVal('inv-m-0-6'),
+            f0_6: getVal('inv-f-0-6'),
+            m7_12: getVal('inv-m-7-12'),
+            f7_12: getVal('inv-f-7-12'),
+            m13_24: getVal('inv-m-13-24'),
+            f13_24: getVal('inv-f-13-24'),
+            m25_36: getVal('inv-m-25-36'),
+            f25_36: getVal('inv-f-25-36'),
+            m36_mais: getVal('inv-m-36-mais'),
+            f36_mais: getVal('inv-f-36-mais')
+        };
+
+        const oldValues = window.currentInventoryData;
+
+        // Configuration for generating dates based on category
+        const ageConfig = {
+            m0_6: { sexo: 'Macho', mesesIdade: 3 },
+            f0_6: { sexo: 'Fêmea', mesesIdade: 3 },
+            m7_12: { sexo: 'Macho', mesesIdade: 9 },
+            f7_12: { sexo: 'Fêmea', mesesIdade: 9 },
+            m13_24: { sexo: 'Macho', mesesIdade: 18 },
+            f13_24: { sexo: 'Fêmea', mesesIdade: 18 },
+            m25_36: { sexo: 'Macho', mesesIdade: 30 },
+            f25_36: { sexo: 'Fêmea', mesesIdade: 30 },
+            m36_mais: { sexo: 'Macho', mesesIdade: 48 },
+            f36_mais: { sexo: 'Fêmea', mesesIdade: 48 }
+        };
+
+        const getDateForAge = (mesesIdade) => {
+            const d = new Date();
+            d.setMonth(d.getMonth() - mesesIdade);
+            return d.toISOString().split('T')[0];
+        };
+
+        // Get all active animals to process deletions if needed
+        let ativos = window.DB.getGado().filter(a => a.situacao !== 'Morto' && a.situacao !== 'Vendido');
+        
+        let animaisAdicionados = 0;
+        let animaisRemovidos = 0;
+
+        for (const [key, conf] of Object.entries(ageConfig)) {
+            const diff = newValues[key] - oldValues[key];
+            
+            if (diff > 0) {
+                // Precisa adicionar animais
+                const nascStr = getDateForAge(conf.mesesIdade);
+                for (let i = 0; i < diff; i++) {
+                    await window.DB.addGado({
+                        brinco: `AJUSTE-${Date.now().toString().slice(-6)}-${i}`,
+                        lote: 'Ajuste de Estoque',
+                        sexo: conf.sexo,
+                        nascimento: nascStr,
+                        peso: '',
+                        situacao: 'Ativo no Pasto'
+                    });
+                    animaisAdicionados++;
+                }
+            } else if (diff < 0) {
+                // Precisa remover animais dessa categoria
+                // Filtra os ativos que caem nessa categoria
+                const hoje = new Date();
+                let removidosDestaCategoria = 0;
+                
+                // Encontrar os IDs dos animais que correspondem à categoria
+                const candidatosParaRemover = ativos.filter(a => {
+                    if (a.sexo !== conf.sexo || !a.nascimento) return false;
+                    
+                    let nasc;
+                    if (a.nascimento.includes('/')) {
+                        const parts = a.nascimento.split('/');
+                        nasc = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
+                    } else {
+                        nasc = new Date(a.nascimento + 'T12:00:00');
+                    }
+                    if (isNaN(nasc.getTime())) return false;
+
+                    let meses = (hoje.getFullYear() - nasc.getFullYear()) * 12 + (hoje.getMonth() - nasc.getMonth());
+                    if (hoje.getDate() < nasc.getDate()) meses--;
+                    if (meses < 0) meses = 0;
+
+                    if (key.includes('0_6')) return meses <= 6;
+                    if (key.includes('7_12')) return meses > 6 && meses <= 12;
+                    if (key.includes('13_24')) return meses > 12 && meses <= 24;
+                    if (key.includes('25_36')) return meses > 24 && meses <= 36;
+                    if (key.includes('36_mais')) return meses > 36;
+                    
+                    return false;
+                });
+
+                // Remove a quantidade necessária (deleta os registros)
+                for (let i = 0; i < Math.abs(diff) && i < candidatosParaRemover.length; i++) {
+                    await window.DB.deleteGado(candidatosParaRemover[i].id);
+                    animaisRemovidos++;
+                }
+            }
+        }
+
+        if (animaisAdicionados > 0 || animaisRemovidos > 0) {
+            if (typeof window.showToast === 'function') {
+                window.showToast(`Inventário ajustado com sucesso. +${animaisAdicionados} adicionados, -${animaisRemovidos} removidos.`, 'success');
+            }
+            if (typeof window.renderGado === 'function') window.renderGado();
+            if (typeof window.updateDashboard === 'function') window.updateDashboard();
+        } else {
+             if (typeof window.showToast === 'function') {
+                 window.showToast(`Nenhuma alteração foi necessária.`, 'info');
+             }
+        }
+
+        // Volta para o modo view com os novos dados
+        window.openInventarioView('view');
+
+    } catch (err) {
+        console.error("Erro ao salvar ajustes de inventário:", err);
+        alert("Erro ao salvar ajustes: " + err.message);
+    } finally {
+        if (btnSalvar) {
+            btnSalvar.disabled = false;
+            btnSalvar.textContent = 'Salvar Ajustes';
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const btnInventario = document.getElementById('btn-inventario-view');
     if (btnInventario) {
-        btnInventario.addEventListener('click', window.openInventarioView);
+        btnInventario.addEventListener('click', () => window.openInventarioView('view'));
+    }
+
+    const btnEditarInventario = document.getElementById('btn-editar-inventario');
+    if (btnEditarInventario) {
+        btnEditarInventario.addEventListener('click', () => window.openInventarioView('edit'));
+    }
+
+    const btnCancelarEdicao = document.getElementById('btn-cancelar-edicao-inventario');
+    if (btnCancelarEdicao) {
+        btnCancelarEdicao.addEventListener('click', () => window.openInventarioView('view'));
+    }
+
+    const btnSalvarInventario = document.getElementById('btn-salvar-inventario');
+    if (btnSalvarInventario) {
+        btnSalvarInventario.addEventListener('click', () => window.saveInventarioAdjustments());
     }
 });

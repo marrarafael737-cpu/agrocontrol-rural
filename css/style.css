@@ -1748,11 +1748,12 @@ td.table-actions {
 .fab-container {
     position: fixed;
     bottom: 24px;
-    right: 24px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 99;
     display: none; /* Desktop hidden */
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     gap: 12px;
 }
 
@@ -1773,7 +1774,12 @@ td.table-actions {
 }
 
 .fab-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.9) translateX(-50%);
+    transform-origin: left; /* Because transform already has translateX(-50%) */
+}
+/* Adjusting active for the container if needed */
+.fab-container:active .fab-btn {
+     transform: scale(0.9);
 }
 
 .fab-container.active .fab-btn {
@@ -1785,7 +1791,7 @@ td.table-actions {
 .fab-options {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     gap: 10px;
     opacity: 0;
     pointer-events: none;

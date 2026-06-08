@@ -8,17 +8,20 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1b4332">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><rect width='256' height='256' fill='none'/><path d='M208,80v88a16,16,0,0,1-16,16H152L128,216,104,184H64a16,16,0,0,1-16-16V80A16,16,0,0,1,64,64H192A16,16,0,0,1,208,80Z' fill='%231b4332'/></svg>">
-    
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><rect width='256' height='256' fill='none'/><path d='M208,80v88a16,16,0,0,1-16,16H152L128,216,104,184H64a16,16,0,0,1-16-16V80A16,16,0,0,1,64,64H192A16,16,0,0,1,208,80Z' fill='%231b4332'/></svg>">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Phosphor Icons - CSS Font approach (always works) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -45,7 +48,8 @@
             </form>
             <div class="login-footer">
                 <p id="auth-toggle-container">Não tem uma conta? <a href="#" id="toggle-auth-mode">Cadastre-se</a></p>
-                <p id="demo-mode-container">Ou use o <a href="#" id="login-demo-btn">Modo de Demonstração (Offline)</a></p>
+                <p id="demo-mode-container">Ou use o <a href="#" id="login-demo-btn">Modo de Demonstração (Offline)</a>
+                </p>
             </div>
         </div>
     </div>
@@ -94,11 +98,13 @@
                 </button>
             </nav>
 
-            <div class="sidebar-footer" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+            <div class="sidebar-footer"
+                style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
                 <button id="logout-btn" class="nav-item danger" style="flex: 1; margin: 0;">
                     <i class="ph ph-sign-out"></i> Sair
                 </button>
-                <button class="theme-toggle-btn mobile-only" id="sidebar-theme-toggle-btn" title="Alternar Tema" style="padding: 0.75rem;">
+                <button class="theme-toggle-btn mobile-only" id="sidebar-theme-toggle-btn" title="Alternar Tema"
+                    style="padding: 0.75rem;">
                     <i class="ph ph-moon"></i>
                 </button>
             </div>
@@ -146,8 +152,11 @@
                             <input type="text" placeholder="Mapa da Fazenda - Gestão de Piquetes" readonly>
                         </div>
                     </div>
-                    <div class="table-container" style="padding: 0.5rem; height: calc(100vh - 220px); min-height: 500px;">
-                        <div id="farm-map" style="width: 100%; height: 100%; border-radius: calc(var(--border-radius) - 4px); z-index: 1;"></div>
+                    <div class="table-container"
+                        style="padding: 0.5rem; height: calc(100vh - 220px); min-height: 500px;">
+                        <div id="farm-map"
+                            style="width: 100%; height: 100%; border-radius: calc(var(--border-radius) - 4px); z-index: 1;">
+                        </div>
                     </div>
                 </section>
 
@@ -278,7 +287,8 @@
                             <input type="text" id="search-gado" placeholder="Buscar por ID ou Lote...">
                         </div>
                         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button id="btn-inventario-view" class="btn btn-secondary" onclick="openInventarioView()" style="background: var(--light); color: var(--text-main); border: 1px solid var(--border-color);">
+                            <button id="btn-inventario-view" class="btn btn-secondary" onclick="openInventarioView()"
+                                style="background: var(--light); color: var(--text-main); border: 1px solid var(--border-color);">
                                 <i class="ph ph-table"></i> Inventário
                             </button>
                             <button class="btn btn-primary" onclick="openModal('modal-gado')">
@@ -290,7 +300,8 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 40px;"><input type="checkbox" id="select-all-gado" class="table-checkbox"></th>
+                                    <th style="width: 40px;"><input type="checkbox" id="select-all-gado"
+                                            class="table-checkbox"></th>
                                     <th>ID / Brinco</th>
                                     <th>Sexo</th>
                                     <th>Nascimento</th>
@@ -326,7 +337,8 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 40px;"><input type="checkbox" id="select-all-bezerros" class="table-checkbox"></th>
+                                    <th style="width: 40px;"><input type="checkbox" id="select-all-bezerros"
+                                            class="table-checkbox"></th>
                                     <th>Data Nascimento</th>
                                     <th>ID da Mãe</th>
                                     <th>Sexo</th>
@@ -353,7 +365,8 @@
                             <p>Acompanhe suas receitas, despesas e lucro em detalhes.</p>
                             <div style="display:flex; gap: 0.5rem; margin-top: 1rem;">
                                 <button class="btn btn-outline" onclick="generateReport('finance')">Ver na Tela</button>
-                                <button class="btn btn-outline" style="border-color: #107c41; color: #107c41;" onclick="exportFinanceExcel()"><i class="ph ph-file-xls"></i> Excel</button>
+                                <button class="btn btn-outline" style="border-color: #107c41; color: #107c41;"
+                                    onclick="exportFinanceExcel()"><i class="ph ph-file-xls"></i> Excel</button>
                             </div>
                         </div>
                         <div class="report-card">
@@ -361,7 +374,8 @@
                             <p>Veja o crescimento do seu rebanho, nascimentos e vendas.</p>
                             <div style="display:flex; gap: 0.5rem; margin-top: 1rem;">
                                 <button class="btn btn-outline" onclick="generateReport('cattle')">Ver na Tela</button>
-                                <button class="btn btn-outline" style="border-color: #b30b00; color: #b30b00;" onclick="exportCattlePDF()"><i class="ph ph-file-pdf"></i> PDF</button>
+                                <button class="btn btn-outline" style="border-color: #b30b00; color: #b30b00;"
+                                    onclick="exportCattlePDF()"><i class="ph ph-file-pdf"></i> PDF</button>
                             </div>
                         </div>
                     </div>
@@ -450,15 +464,18 @@
             <div class="fab-options" id="fab-options-menu">
                 <button class="fab-option-btn" onclick="openModal('modal-despesa')" title="Registrar Despesa">
                     <span class="fab-label">Despesa</span>
-                    <i class="ph ph-trend-down" style="background-color: rgba(220, 53, 69, 0.1); color: var(--danger);"></i>
+                    <i class="ph ph-trend-down"
+                        style="background-color: rgba(220, 53, 69, 0.1); color: var(--danger);"></i>
                 </button>
                 <button class="fab-option-btn" onclick="openModal('modal-receita')" title="Registrar Receita">
                     <span class="fab-label">Receita</span>
-                    <i class="ph ph-trend-up" style="background-color: rgba(40, 167, 69, 0.1); color: var(--success);"></i>
+                    <i class="ph ph-trend-up"
+                        style="background-color: rgba(40, 167, 69, 0.1); color: var(--success);"></i>
                 </button>
                 <button class="fab-option-btn" onclick="openModal('modal-gado')" title="Cadastrar Animal">
                     <span class="fab-label">Animal</span>
-                    <i class="ph ph-cow" style="background-color: rgba(156, 102, 68, 0.1); color: var(--secondary);"></i>
+                    <i class="ph ph-cow"
+                        style="background-color: rgba(156, 102, 68, 0.1); color: var(--secondary);"></i>
                 </button>
                 <button class="fab-option-btn" onclick="openModal('modal-bezerro')" title="Registrar Nascimento">
                     <span class="fab-label">Nascimento</span>
@@ -579,15 +596,20 @@
         <div class="modal-header" style="padding-bottom: 1rem; border-bottom: none;">
             <div>
                 <h3 style="margin-bottom: 0.5rem;">Cadastrar Animais</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Cadastre um único animal ou um lote inteiro de compra</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Cadastre um único animal ou
+                    um lote inteiro de compra</p>
             </div>
             <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
         </div>
         <div class="modal-body" style="padding-top: 0.5rem;">
             <!-- Modal Tabs Selection -->
-            <div class="modal-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; padding: 4px; background: #f1f5f9; border-radius: 8px;">
-                <button type="button" class="modal-tab active" id="tab-cadastro-individual" style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: white; color: var(--primary); transition: var(--transition);">Individual</button>
-                <button type="button" class="modal-tab" id="tab-cadastro-lote" style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-muted); transition: var(--transition);">Em Lote</button>
+            <div class="modal-tabs"
+                style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; padding: 4px; background: #f1f5f9; border-radius: 8px;">
+                <button type="button" class="modal-tab active" id="tab-cadastro-individual"
+                    style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: white; color: var(--primary); transition: var(--transition);">Individual</button>
+                <button type="button" class="modal-tab" id="tab-cadastro-lote"
+                    style="flex: 1; padding: 0.5rem; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-muted); transition: var(--transition);">Em
+                    Lote</button>
             </div>
 
             <form id="form-gado">
@@ -681,16 +703,19 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <!-- Misto gender distribution subfields -->
-                        <div class="form-row" id="gado-lote-misto-dist" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+                        <div class="form-row" id="gado-lote-misto-dist"
+                            style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
                             <div class="input-group" style="margin-bottom: 0;">
                                 <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Fêmeas</label>
-                                <input type="number" id="gado-lote-qtd-femeas" min="0" placeholder="Ex: 30" style="padding: 0.5rem 0.75rem;">
+                                <input type="number" id="gado-lote-qtd-femeas" min="0" placeholder="Ex: 30"
+                                    style="padding: 0.5rem 0.75rem;">
                             </div>
                             <div class="input-group" style="margin-bottom: 0;">
                                 <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Machos</label>
-                                <input type="number" id="gado-lote-qtd-machos" min="0" placeholder="Ex: 20" style="padding: 0.5rem 0.75rem;">
+                                <input type="number" id="gado-lote-qtd-machos" min="0" placeholder="Ex: 20"
+                                    style="padding: 0.5rem 0.75rem;">
                             </div>
                         </div>
 
@@ -708,41 +733,84 @@
 
                     <!-- ESTOQUE INITIAL GRID -->
                     <div id="lote-estoque-fields" style="display: block; margin-top: 1rem;">
-                        <h4 style="margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.95rem;">Grade de Animais</h4>
-                        <div class="table-container" style="overflow-x: auto; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem;">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.95rem;">Grade de Animais
+                        </h4>
+                        <div class="table-container"
+                            style="overflow-x: auto; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+                            <table
+                                style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem;">
                                 <thead>
                                     <tr style="background: var(--light); color: var(--text-main);">
-                                        <th style="padding: 8px; border-bottom: 2px solid var(--border-color);">Categoria / Idade</th>
-                                        <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #0056b3;">Machos</th>
-                                        <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #c2185b;">Fêmeas</th>
+                                        <th style="padding: 8px; border-bottom: 2px solid var(--border-color);">
+                                            Categoria / Idade</th>
+                                        <th
+                                            style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #0056b3;">
+                                            Machos</th>
+                                        <th
+                                            style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #c2185b;">
+                                            Fêmeas</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td style="padding: 8px; font-weight: 500; text-align: left;">Até 6 meses (Nascimento)</td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-0-6" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-0-6" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">Até 6 meses
+                                            (Nascimento)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-m-0-6" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-f-0-6" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 8px; font-weight: 500; text-align: left;">7 a 12 meses (Desmama)</td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-7-12" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-7-12" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">7 a 12 meses
+                                            (Desmama)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-m-7-12" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-f-7-12" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 8px; font-weight: 500; text-align: left;">13 a 24 meses (Garrote/Novilha)</td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-13-24" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-13-24" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">13 a 24 meses
+                                            (Garrote/Novilha)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-m-13-24" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-f-13-24" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 8px; font-weight: 500; text-align: left;">25 a 36 meses (Novilho(a))</td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-25-36" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-25-36" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">25 a 36 meses
+                                            (Novilho(a))</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-m-25-36" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-f-25-36" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 8px; font-weight: 500; text-align: left;">Acima 36 meses (Boi/Vaca)</td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-m-36-mais" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
-                                        <td style="padding: 4px;"><input type="number" class="grid-input" id="grid-f-36-mais" min="0" value="0" style="width: 100%; max-width: 60px; text-align: center; padding: 4px;"></td>
+                                        <td style="padding: 8px; font-weight: 500; text-align: left;">Acima 36 meses
+                                            (Boi/Vaca)</td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-m-36-mais" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
+                                        <td style="padding: 4px;"><input type="number" class="grid-input"
+                                                id="grid-f-36-mais" min="0" value="0"
+                                                style="width: 100%; max-width: 60px; text-align: center; padding: 4px;">
+                                        </td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
@@ -760,28 +828,38 @@
                     </div>
 
                     <!-- Automatic Financial integration -->
-                    <div class="confirm-purchase-section" id="gado-lote-financeiro-container" style="display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
-                        <div class="input-checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;">
-                            <input type="checkbox" id="gado-lote-financeiro" style="width: auto; cursor: pointer; transform: scale(1.15);">
-                            <label for="gado-lote-financeiro" style="font-weight: 600; cursor: pointer; font-size: 0.95rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
-                                <i class="ph ph-hand-coins" style="color: var(--primary); font-size: 1.25rem;"></i> Registrar compra no Financeiro (Despesa)
+                    <div class="confirm-purchase-section" id="gado-lote-financeiro-container"
+                        style="display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                        <div class="input-checkbox-group"
+                            style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;">
+                            <input type="checkbox" id="gado-lote-financeiro"
+                                style="width: auto; cursor: pointer; transform: scale(1.15);">
+                            <label for="gado-lote-financeiro"
+                                style="font-weight: 600; cursor: pointer; font-size: 0.95rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-hand-coins" style="color: var(--primary); font-size: 1.25rem;"></i>
+                                Registrar compra no Financeiro (Despesa)
                             </label>
                         </div>
-                        
-                        <div class="form-row finance-details" id="gado-lote-finance-details" style="display: none; gap: 1rem; padding: 1rem; background: rgba(64, 145, 108, 0.04); border-radius: 8px; border: 1px dashed rgba(64, 145, 108, 0.3);">
+
+                        <div class="form-row finance-details" id="gado-lote-finance-details"
+                            style="display: none; gap: 1rem; padding: 1rem; background: rgba(64, 145, 108, 0.04); border-radius: 8px; border: 1px dashed rgba(64, 145, 108, 0.3);">
                             <div class="input-group" style="margin-bottom: 0;">
                                 <label style="font-size: 0.85rem; font-weight: 500;">Valor Unitário (R$)</label>
-                                <input type="number" id="gado-lote-valor-unitario" step="0.01" min="0.01" placeholder="0.00" style="padding: 0.5rem 0.75rem;">
+                                <input type="number" id="gado-lote-valor-unitario" step="0.01" min="0.01"
+                                    placeholder="0.00" style="padding: 0.5rem 0.75rem;">
                             </div>
                             <div class="input-group" style="margin-bottom: 0;">
                                 <label style="font-size: 0.85rem; font-weight: 500;">Valor Total Calculado (R$)</label>
-                                <input type="number" id="gado-lote-valor-total" step="0.01" placeholder="Calculado..." readonly style="padding: 0.5rem 0.75rem; background-color: #e9ecef; font-weight: 600; color: var(--text-main); outline: none;">
+                                <input type="number" id="gado-lote-valor-total" step="0.01" placeholder="Calculado..."
+                                    readonly
+                                    style="padding: 0.5rem 0.75rem; background-color: #e9ecef; font-weight: 600; color: var(--text-main); outline: none;">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-actions" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                <div class="modal-actions"
+                    style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
                     <button type="button" class="btn btn-ghost close-modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="btn-salvar-gado">Salvar Animal</button>
                 </div>
@@ -825,14 +903,17 @@
                 </div>
 
                 <!-- Misto gender distribution subfields for calves -->
-                <div class="form-row" id="bezerro-misto-dist" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem; gap: 1rem;">
+                <div class="form-row" id="bezerro-misto-dist"
+                    style="display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem; gap: 1rem;">
                     <div class="input-group" style="margin-bottom: 0;">
                         <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Fêmeas</label>
-                        <input type="number" id="bezerro-qtd-femeas" min="0" placeholder="Ex: 3" style="padding: 0.5rem 0.75rem;">
+                        <input type="number" id="bezerro-qtd-femeas" min="0" placeholder="Ex: 3"
+                            style="padding: 0.5rem 0.75rem;">
                     </div>
                     <div class="input-group" style="margin-bottom: 0;">
                         <label style="font-size: 0.8rem; font-weight: 600;">Qtd. de Machos</label>
-                        <input type="number" id="bezerro-qtd-machos" min="0" placeholder="Ex: 2" style="padding: 0.5rem 0.75rem;">
+                        <input type="number" id="bezerro-qtd-machos" min="0" placeholder="Ex: 2"
+                            style="padding: 0.5rem 0.75rem;">
                     </div>
                 </div>
 
@@ -844,24 +925,33 @@
                     <label>Observações</label>
                     <textarea id="bezerro-observacoes" rows="2"></textarea>
                 </div>
-                
+
                 <!-- Automatic Financial integration for Births -->
-                <div class="confirm-purchase-section" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
-                    <div class="input-checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;">
-                        <input type="checkbox" id="bezerro-financeiro" style="width: auto; cursor: pointer; transform: scale(1.15);">
-                        <label for="bezerro-financeiro" style="font-weight: 600; cursor: pointer; font-size: 0.95rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
-                            <i class="ph ph-hand-coins" style="color: var(--success); font-size: 1.25rem;"></i> Lançar como Receita (Ganho de Capital)
+                <div class="confirm-purchase-section"
+                    style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                    <div class="input-checkbox-group"
+                        style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;">
+                        <input type="checkbox" id="bezerro-financeiro"
+                            style="width: auto; cursor: pointer; transform: scale(1.15);">
+                        <label for="bezerro-financeiro"
+                            style="font-weight: 600; cursor: pointer; font-size: 0.95rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="ph ph-hand-coins" style="color: var(--success); font-size: 1.25rem;"></i> Lançar
+                            como Receita (Ganho de Capital)
                         </label>
                     </div>
-                    
-                    <div class="form-row finance-details" id="bezerro-finance-details" style="display: none; gap: 1rem; padding: 1rem; background: rgba(40, 167, 69, 0.04); border-radius: 8px; border: 1px dashed rgba(40, 167, 69, 0.3);">
+
+                    <div class="form-row finance-details" id="bezerro-finance-details"
+                        style="display: none; gap: 1rem; padding: 1rem; background: rgba(40, 167, 69, 0.04); border-radius: 8px; border: 1px dashed rgba(40, 167, 69, 0.3);">
                         <div class="input-group" style="margin-bottom: 0;">
                             <label style="font-size: 0.85rem; font-weight: 500;">Valor do Bezerro (R$)</label>
-                            <input type="number" id="bezerro-valor-unitario" step="0.01" min="0.01" placeholder="0.00" style="padding: 0.5rem 0.75rem;">
+                            <input type="number" id="bezerro-valor-unitario" step="0.01" min="0.01" placeholder="0.00"
+                                style="padding: 0.5rem 0.75rem;">
                         </div>
                         <div class="input-group" style="margin-bottom: 0;">
                             <label style="font-size: 0.85rem; font-weight: 500;">Receita Total (R$)</label>
-                            <input type="number" id="bezerro-valor-total" step="0.01" placeholder="Calculado..." readonly style="padding: 0.5rem 0.75rem; background-color: #e9ecef; font-weight: 600; color: var(--text-main); outline: none;">
+                            <input type="number" id="bezerro-valor-total" step="0.01" placeholder="Calculado..."
+                                readonly
+                                style="padding: 0.5rem 0.75rem; background-color: #e9ecef; font-weight: 600; color: var(--text-main); outline: none;">
                         </div>
                     </div>
                 </div>
@@ -882,7 +972,8 @@
         <div class="modal-body">
             <form id="form-desmame">
                 <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
-                    Os <strong id="desmame-count">0</strong> bezerros selecionados serão convertidos em gado adulto na seção de Rebanho, deixando a área de recria.
+                    Os <strong id="desmame-count">0</strong> bezerros selecionados serão convertidos em gado adulto na
+                    seção de Rebanho, deixando a área de recria.
                 </p>
                 <div class="input-group">
                     <label>Lote de Destino</label>
@@ -926,7 +1017,8 @@
                 </div>
                 <div class="input-group">
                     <label>Descrição</label>
-                    <input type="text" id="conta-descricao" required placeholder="Ex: Conta de luz da sede ou venda de lote">
+                    <input type="text" id="conta-descricao" required
+                        placeholder="Ex: Conta de luz da sede ou venda de lote">
                 </div>
                 <div class="form-row">
                     <div class="input-group">
@@ -969,13 +1061,19 @@
                 <button class="close-modal"><i class="ph ph-x"></i></button>
             </div>
             <div class="modal-body">
-                <div class="table-container" style="overflow-x: auto; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem;" id="table-inventario-view">
+                <div class="table-container"
+                    style="overflow-x: auto; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem;"
+                        id="table-inventario-view">
                         <thead>
                             <tr style="background: var(--light); color: var(--text-main);">
-                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); text-align: left;">Categoria / Idade</th>
-                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #0056b3;">Machos</th>
-                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #c2185b;">Fêmeas</th>
+                                <th
+                                    style="padding: 8px; border-bottom: 2px solid var(--border-color); text-align: left;">
+                                    Categoria / Idade</th>
+                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #0056b3;">
+                                    Machos</th>
+                                <th style="padding: 8px; border-bottom: 2px solid var(--border-color); color: #c2185b;">
+                                    Fêmeas</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-inventario-view">
@@ -993,6 +1091,11 @@
                 <div style="text-align: right; margin-top: 8px; font-weight: 600; font-size: 1rem;">
                     Total Geral: <span id="view-total-geral" style="color: var(--primary);">0</span> cabeças
                 </div>
+                <div class="modal-actions" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                    <button type="button" class="btn btn-ghost" id="btn-cancelar-edicao-inventario" style="display: none;">Cancelar</button>
+                    <button type="button" class="btn btn-outline" id="btn-editar-inventario"><i class="ph ph-pencil-simple"></i> Editar Inventário</button>
+                    <button type="button" class="btn btn-primary" id="btn-salvar-inventario" style="display: none;">Salvar Ajustes</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1004,10 +1107,13 @@
                 <i class="ph ph-warning-circle" id="confirm-modal-icon"></i>
             </div>
             <h3 class="confirm-modal-title" id="confirm-modal-title">Confirmar Ação</h3>
-            <p class="confirm-modal-message" id="confirm-modal-message">Tem certeza que deseja prosseguir com esta ação?</p>
+            <p class="confirm-modal-message" id="confirm-modal-message">Tem certeza que deseja prosseguir com esta ação?
+            </p>
             <div class="confirm-modal-actions">
-                <button type="button" class="confirm-btn confirm-btn-cancel" id="confirm-modal-cancel-btn">Cancelar</button>
-                <button type="button" class="confirm-btn confirm-btn-confirm" id="confirm-modal-confirm-btn">Confirmar</button>
+                <button type="button" class="confirm-btn confirm-btn-cancel"
+                    id="confirm-modal-cancel-btn">Cancelar</button>
+                <button type="button" class="confirm-btn confirm-btn-confirm"
+                    id="confirm-modal-confirm-btn">Confirmar</button>
             </div>
         </div>
     </div>
@@ -1031,10 +1137,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    
+
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/db.js"></script>
