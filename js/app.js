@@ -1039,98 +1039,157 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             // Cadastro em Lote
-            const qtd = parseInt(gadoLoteQtd.value) || 0;
             const loteNome = document.getElementById('gado-lote-nome').value.trim();
-            const sexoLote = gadoLoteSexo.value;
-            const idadeMeses = parseInt(document.getElementById('gado-lote-idade-meses').value);
-            const pesoMedio = document.getElementById('gado-lote-peso').value;
             const situacaoLote = document.getElementById('gado-lote-situacao').value;
+            const tipoEntrada = document.getElementById('gado-lote-tipo-entrada').value;
 
-            if (qtd <= 0) {
-                showToast('A quantidade de cabeças deve ser maior que zero.', 'error');
-                return;
-            }
+            if (tipoEntrada === 'estoque') {
+                const getVal = id => parseInt(document.getElementById(id).value) || 0;
+                const gridData = {
+                    'Macho_3': getVal('grid-m-0-6'),
+                    'Fêmea_3': getVal('grid-f-0-6'),
+                    'Macho_9': getVal('grid-m-7-12'),
+                    'Fêmea_9': getVal('grid-f-7-12'),
+                    'Macho_18': getVal('grid-m-13-24'),
+                    'Fêmea_18': getVal('grid-f-13-24'),
+                    'Macho_30': getVal('grid-m-25-36'),
+                    'Fêmea_30': getVal('grid-f-25-36'),
+                    'Macho_48': getVal('grid-m-36-mais'),
+                    'Fêmea_48': getVal('grid-f-36-mais')
+                };
 
-            let countFemeas = 0;
-            let countMachos = 0;
-            let qtdFemeas = 0;
-            let qtdMachos = 0;
+                let animaisAdicionados = 0;
+                for (const [key, qtd] of Object.entries(gridData)) {
+                    if (qtd > 0) {
+                        const [sexo, mesesIdade] = key.split('_');
+                        const d = new Date();
+                        d.setMonth(d.getMonth() - parseInt(mesesIdade));
+                        const nascimentoStr = d.toISOString().split('T')[0];
 
-            if (sexoLote === 'Misto') {
-                qtdFemeas = parseInt(gadoLoteQtdFemeas.value) || 0;
-                qtdMachos = parseInt(gadoLoteQtdMachos.value) || 0;
-                
-                if (qtdFemeas + qtdMachos !== qtd) {
-                    showToast('A soma de fêmeas e machos deve ser igual à quantidade total de cabeças.', 'error');
-                    return;
-                }
-            }
-
-            // Calcular data de nascimento aproximada
-            let nascimentoStr = '';
-            if (!isNaN(idadeMeses) && idadeMeses >= 0) {
-                const d = new Date();
-                d.setMonth(d.getMonth() - idadeMeses);
-                nascimentoStr = d.toISOString().split('T')[0];
-            }
-
-            // Salva cada animal em lote
-            for (let i = 0; i < qtd; i++) {
-                let animalSexo = 'Fêmea';
-                if (sexoLote === 'Fêmea') {
-                    animalSexo = 'Fêmea';
-                } else if (sexoLote === 'Macho') {
-                    animalSexo = 'Macho';
-                } else {
-                    // Misto
-                    if (countFemeas < qtdFemeas) {
-                        animalSexo = 'Fêmea';
-                        countFemeas++;
-                    } else {
-                        animalSexo = 'Macho';
-                        countMachos++;
+                        for (let i = 0; i < qtd; i++) {
+                            const loteLabel = loteNome || 'Estoque';
+                            const brincoTag = `EST-${loteLabel}-${Date.now().toString().slice(-4)}-${animaisAdicionados}`;
+                            
+                            DB.addGado({
+                                brinco: brincoTag,
+                                lote: loteNome || 'Sem lote',
+                                sexo: sexo,
+                                nascimento: nascimentoStr,
+                                peso: '',
+                                situacao: situacaoLote || 'Ativo no Pasto'
+                            });
+                            animaisAdicionados++;
+                        }
                     }
                 }
+                
+                if (animaisAdicionados > 0) {
+                    showToast(`${animaisAdicionados} cabeças de estoque inicial cadastradas com sucesso!`, 'success');
+                } else {
+                    showToast('Nenhum animal foi adicionado. Preencha a grade com pelo menos 1 animal.', 'error');
+                    if (btnSalvar) {
+                        btnSalvar.disabled = false;
+                        btnSalvar.textContent = 'Salvar Animal';
+                    }
+                    return; // Retorna para não fechar o modal
+                }
 
-                // Brinco sequencial: LOTE-Nome-1
-                const loteLabel = loteNome || 'Lote';
-                const brincoTag = `LOTE-${loteLabel}-${i + 1}`;
+            } else {
+                // Modo Compra
+                const qtd = parseInt(gadoLoteQtd.value) || 0;
+                const sexoLote = gadoLoteSexo.value;
+                const idadeMeses = parseInt(document.getElementById('gado-lote-idade-meses').value);
+                const pesoMedio = document.getElementById('gado-lote-peso').value;
 
-                DB.addGado({
-                    brinco: brincoTag,
-                    lote: loteNome || 'Sem lote',
-                    sexo: animalSexo,
-                    nascimento: nascimentoStr,
-                    peso: pesoMedio,
-                    situacao: situacaoLote || 'Ativo no Pasto'
-                });
-            }
-
-            // Registrar despesa automática se aplicável
-            const registrarFinanceiro = gadoLoteFinanceiro ? gadoLoteFinanceiro.checked : false;
-            if (registrarFinanceiro) {
-                const valUnit = parseFloat(gadoLoteValorUnitario.value);
-                if (valUnit <= 0 || isNaN(valUnit)) {
-                    showToast('Erro: Valor unitário inválido.', 'error');
+                if (qtd <= 0) {
+                    showToast('A quantidade de cabeças deve ser maior que zero.', 'error');
                     if (btnSalvar) {
                         btnSalvar.disabled = false;
                         btnSalvar.textContent = 'Salvar Animal';
                     }
                     return;
                 }
-                const valorTotal = parseFloat(gadoLoteValorTotal.value) || 0;
-                if (valorTotal > 0) {
-                    DB.addDespesa({
-                        categoria: 'Outros',
-                        descricao: `Compra de Lote: ${qtd} cabeças (${loteNome || 'Gado'})`,
-                        valor: valorTotal,
-                        data: new Date().toISOString().split('T')[0],
-                        observacoes: `Compra automática de lote de gado. Quantidade: ${qtd} cabeças (${sexoLote === 'Misto' ? `${qtdFemeas} F / ${qtdMachos} M` : sexoLote}). Peso Médio: ${pesoMedio ? pesoMedio + ' kg' : '-'}. Idade estimada: ${idadeMeses ? idadeMeses + ' meses' : '-'}.`
+
+                let countFemeas = 0;
+                let countMachos = 0;
+                let qtdFemeas = 0;
+                let qtdMachos = 0;
+
+                if (sexoLote === 'Misto') {
+                    qtdFemeas = parseInt(gadoLoteQtdFemeas.value) || 0;
+                    qtdMachos = parseInt(gadoLoteQtdMachos.value) || 0;
+                    
+                    if (qtdFemeas + qtdMachos !== qtd) {
+                        showToast('A soma de fêmeas e machos deve ser igual à quantidade total de cabeças.', 'error');
+                        if (btnSalvar) {
+                            btnSalvar.disabled = false;
+                            btnSalvar.textContent = 'Salvar Animal';
+                        }
+                        return;
+                    }
+                }
+
+                let nascimentoStr = '';
+                if (!isNaN(idadeMeses) && idadeMeses >= 0) {
+                    const d = new Date();
+                    d.setMonth(d.getMonth() - idadeMeses);
+                    nascimentoStr = d.toISOString().split('T')[0];
+                }
+
+                for (let i = 0; i < qtd; i++) {
+                    let animalSexo = 'Fêmea';
+                    if (sexoLote === 'Fêmea') {
+                        animalSexo = 'Fêmea';
+                    } else if (sexoLote === 'Macho') {
+                        animalSexo = 'Macho';
+                    } else {
+                        if (countFemeas < qtdFemeas) {
+                            animalSexo = 'Fêmea';
+                            countFemeas++;
+                        } else {
+                            animalSexo = 'Macho';
+                            countMachos++;
+                        }
+                    }
+
+                    const loteLabel = loteNome || 'Lote';
+                    const brincoTag = `LOTE-${loteLabel}-${i + 1}`;
+
+                    DB.addGado({
+                        brinco: brincoTag,
+                        lote: loteNome || 'Sem lote',
+                        sexo: animalSexo,
+                        nascimento: nascimentoStr,
+                        peso: pesoMedio,
+                        situacao: situacaoLote || 'Ativo no Pasto'
                     });
                 }
-            }
 
-            showToast(`${qtd} cabeças de gado cadastradas com sucesso!`, 'success');
+                const registrarFinanceiro = gadoLoteFinanceiro ? gadoLoteFinanceiro.checked : false;
+                if (registrarFinanceiro) {
+                    const valUnit = parseFloat(gadoLoteValorUnitario.value);
+                    if (valUnit <= 0 || isNaN(valUnit)) {
+                        showToast('Erro: Valor unitário inválido.', 'error');
+                        if (btnSalvar) {
+                            btnSalvar.disabled = false;
+                            btnSalvar.textContent = 'Salvar Animal';
+                        }
+                        return;
+                    }
+                    const valorTotal = parseFloat(gadoLoteValorTotal.value) || 0;
+                    if (valorTotal > 0) {
+                        DB.addDespesa({
+                            categoria: 'Outros',
+                            descricao: `Compra de Lote: ${qtd} cabeças (${loteNome || 'Gado'})`,
+                            valor: valorTotal,
+                            data: new Date().toISOString().split('T')[0],
+                            observacoes: `Compra automática de lote de gado. Quantidade: ${qtd} cabeças. Peso Médio: ${pesoMedio ? pesoMedio + ' kg' : '-'}.`
+                        });
+                    }
+                }
+
+                showToast(`${qtd} cabeças de gado cadastradas com sucesso!`, 'success');
+            }
         }
         
         closeModal();
