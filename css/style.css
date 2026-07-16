@@ -1887,3 +1887,19 @@ td.table-actions {
     }
 }
 
+
+/* Modo Curral Specific Styles */
+.curral-btn-large:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg) !important;
+    border-color: var(--primary) !important;
+}
+.curral-btn-large:active {
+    transform: scale(0.96);
+}
+.curral-item-count {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.curral-btn-large:active .curral-item-count {
+    transform: scale(1.1);
+}
