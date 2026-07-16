@@ -213,6 +213,29 @@ const DB = {
         return data;
     },
 
+    // Envia e-mail de recuperação de senha
+    resetPassword: async (email) => {
+        if (!supabaseClient) throw new Error("Supabase não configurado.");
+        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email);
+        if (error) throw error;
+        return data;
+    },
+
+    // Atualiza a senha (usado após clicar no link de recuperação)
+    updatePassword: async (newPassword) => {
+        if (!supabaseClient) throw new Error("Supabase não configurado.");
+        const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
+        if (error) throw error;
+        return data;
+    },
+
+    // Escuta eventos de autenticação
+    onAuthStateChange: (callback) => {
+        if (supabaseClient) {
+            supabaseClient.auth.onAuthStateChange(callback);
+        }
+    },
+
     // Realiza o logout do usuário
     signOut: async () => {
         if (supabaseClient) {

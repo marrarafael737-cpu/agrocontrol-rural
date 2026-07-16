@@ -367,6 +367,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Recuperar Senha (Esqueci minha senha)
+    const forgotPasswordBtn = document.getElementById('forgot-password-btn');
+    if (forgotPasswordBtn) {
+        forgotPasswordBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById('login-email').value.trim();
+            
+            let emailToRecover = emailInput;
+            
+            if (!emailToRecover) {
+                emailToRecover = prompt('Digite seu e-mail para recuperar a senha:');
+            }
+            
+            if (!emailToRecover) return;
+
+            // Validação simples de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailToRecover)) {
+                showToast('Por favor, digite um e-mail válido.', 'error');
+                return;
+            }
+
+            showLoader(true, 'Enviando e-mail de recuperação...');
+            try {
+                await DB.resetPassword(emailToRecover);
+                showToast(`E-mail de recuperação enviado para ${emailToRecover}. Verifique sua caixa de entrada e spam.`, 'success');
+            } catch (err) {
+                console.error("Erro ao recuperar senha:", err);
+                showToast(err.message || 'Erro ao tentar enviar e-mail de recuperação.', 'error');
+            } finally {
+                showLoader(false);
+            }
+        });
+    }
+
     // Entrar no Modo de Demonstração (Offline)
     loginDemoBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -489,6 +524,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 showApp();
             }
         }
+    }
+
+    // Listener para eventos do Supabase (ex: click no link de recuperação de senha)
+    if (DB.onAuthStateChange) {
+        DB.onAuthStateChange(async (event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                const newPassword = prompt("Bem-vindo de volta! Por favor, digite a sua nova senha:");
+                if (newPassword && newPassword.length >= 6) {
+                    showLoader(true, "Atualizando senha...");
+                    try {
+                        await DB.updatePassword(newPassword);
+                        showToast("Senha atualizada com sucesso! Você já está logado.", "success");
+                    } catch (error) {
+                        showToast("Erro ao atualizar a senha: " + error.message, "error");
+                    } finally {
+                        showLoader(false);
+                    }
+                } else if (newPassword) {
+                    showToast("A senha precisa ter pelo menos 6 caracteres. Atualização cancelada.", "error");
+                }
+            }
+        });
     }
 
     function showApp() {
